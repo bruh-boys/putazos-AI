@@ -2,6 +2,12 @@ class Entity implements IEntity {
     protected readonly ctx: CanvasRenderingContext2D
 
     // @ts-ignore - Value inserted by the child class.
+    protected readonly height: number
+
+    // @ts-ignore - Value inserted by the child class.
+    protected readonly width: number
+
+    // @ts-ignore - Value inserted by the child class.
     protected readonly sprites: { [key: string]: {
         image_src: string,
         amount: number,

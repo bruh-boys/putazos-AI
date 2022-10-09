@@ -92,6 +92,9 @@ class Soldier extends Entity {
         // @ts-ignore - Requerid insert.
         this.states = soldier_states
 
+        // I need check width and height of the sprite.
+        // this.height = 0
+        // this.width = 0
     }
 
     public update() {
