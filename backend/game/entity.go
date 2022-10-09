@@ -1,20 +1,14 @@
 package game
 
-var (
-	MovePerFrame    = 10.0
-	FramesPerSecond = 30
-	Gravity         = 1.0
-)
-
 type Soldier struct {
-	Height    int
-	Widht     int
-	Faction   bool
-	X         float64
-	Y         float64
+	Height    int     `json:"height"`
+	Widht     int     `json:"width"`
+	Faction   string  `json:"color"`
+	X         float64 `json:"x"`
+	Y         float64 `json:"y"`
 	VelY      float64 // for the jump
-	Direction bool    //false:left true:right
-	Life      int
+	Direction bool    `json:"direction"` //false:left true:right
+	Life      int     `json:"life"`
 }
 
 // just a simple rectangle
@@ -26,11 +20,16 @@ func (s *Soldier) Action(action string, world World) {
 		s.X -= MovePerFrame
 		s.Direction = false
 	case "move-right":
+
 		s.X += MovePerFrame
+
 		s.Direction = true
 	case "jump":
 		// in the world this should
-		s.VelY += 15
+
+		if s.VelY == 0 {
+			s.VelY = 15
+		}
 
 	case "shoot":
 		// use this for the world
@@ -40,16 +39,17 @@ func (s *Soldier) Action(action string, world World) {
 
 // I need to do something with the platform , wait a second
 func (s *Soldier) Moving(world World) {
-	s.Y += s.VelY
-
-	dpy := world.SoldierIsOnPlatform(*s)
-	if s.Y > dpy {
+	down, up := world.SoldierIsOnPlatform(*s)
+	if s.Y+s.VelY > down && s.Y+s.VelY <= up {
 		s.VelY -= Gravity
 
-		s.X += map[bool]float64{true: MovePerFrame / 2, false: -MovePerFrame / 2}[s.Direction]
+	} else if s.Y+s.VelY >= up && s.VelY > 0 {
+		s.VelY = -Gravity
+
 	} else {
 		s.VelY = 0
-		s.Y = dpy
+		s.Y = down
 	}
+	s.Y += s.VelY
 
 }
