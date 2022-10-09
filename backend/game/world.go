@@ -7,15 +7,16 @@ var (
 )
 
 type Platform struct {
-	X      float64
-	Y      float64
-	Base   float64
-	Height float64
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Base   float64 `json:"base"`
+	Height float64 `json:"height"`
 }
 
 type World struct {
-	Width, Height float64
-	Platforms     []Platform
+	Width     float64    `json:"width"`
+	Height    float64    `json:"height"`
+	Platforms []Platform `json:"platforms"`
 }
 
 func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
@@ -34,7 +35,7 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 
 		if soldier.Y <= (w.Platforms[i].Y) &&
 			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
-			upDis = soldier.Y - (w.Platforms[i].Y + w.Platforms[i].Height)
+			upDis = (w.Platforms[i].Y) - soldier.Y
 			up = w.Platforms[i].Y
 		}
 		if lowDisUp > upDis && upDis >= 0 {

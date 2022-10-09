@@ -1,21 +1,20 @@
 package game
 
 type Soldier struct {
-	Height    int
-	Widht     int
-	Faction   bool
-	X         float64
-	Y         float64
+	Height    int     `json:"height"`
+	Widht     int     `json:"width"`
+	Faction   string  `json:"color"`
+	X         float64 `json:"x"`
+	Y         float64 `json:"y"`
 	VelY      float64 // for the jump
-	Direction bool    //false:left true:right
-	Life      int
+	Direction bool    `json:"direction"` //false:left true:right
+	Life      int     `json:"life"`
 }
 
 // just a simple rectangle
 // the begining is on the left down corner
 
 func (s *Soldier) Action(action string, world World) {
-	down, _ := world.SoldierIsOnPlatform(*s)
 	switch action {
 	case "move-left":
 		s.X -= MovePerFrame
@@ -23,11 +22,12 @@ func (s *Soldier) Action(action string, world World) {
 	case "move-right":
 
 		s.X += MovePerFrame
+
 		s.Direction = true
 	case "jump":
 		// in the world this should
 
-		if s.Y == down {
+		if s.VelY == 0 {
 			s.VelY = 15
 		}
 
