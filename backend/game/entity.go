@@ -1,11 +1,5 @@
 package game
 
-var (
-	MovePerFrame    = 10.0
-	FramesPerSecond = 30
-	Gravity         = 1.0
-)
-
 type Soldier struct {
 	Height    int
 	Widht     int
@@ -21,16 +15,21 @@ type Soldier struct {
 // the begining is on the left down corner
 
 func (s *Soldier) Action(action string, world World) {
+	down, _ := world.SoldierIsOnPlatform(*s)
 	switch action {
 	case "move-left":
 		s.X -= MovePerFrame
 		s.Direction = false
 	case "move-right":
+
 		s.X += MovePerFrame
 		s.Direction = true
 	case "jump":
 		// in the world this should
-		s.VelY += 15
+
+		if s.Y == down {
+			s.VelY = 15
+		}
 
 	case "shoot":
 		// use this for the world
@@ -40,16 +39,17 @@ func (s *Soldier) Action(action string, world World) {
 
 // I need to do something with the platform , wait a second
 func (s *Soldier) Moving(world World) {
-	s.Y += s.VelY
-
-	dpy := world.SoldierIsOnPlatform(*s)
-	if s.Y > dpy {
+	down, up := world.SoldierIsOnPlatform(*s)
+	if s.Y+s.VelY > down && s.Y+s.VelY <= up {
 		s.VelY -= Gravity
 
-		s.X += map[bool]float64{true: MovePerFrame / 2, false: -MovePerFrame / 2}[s.Direction]
+	} else if s.Y+s.VelY >= up && s.VelY > 0 {
+		s.VelY = -Gravity
+
 	} else {
 		s.VelY = 0
-		s.Y = dpy
+		s.Y = down
 	}
+	s.Y += s.VelY
 
 }
