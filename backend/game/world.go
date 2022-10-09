@@ -32,7 +32,7 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 	lowDisUp := 100000.0
 
 	for i := 0; i < len(w.Platforms); i++ {
-
+		// with this i get the platform that its up
 		if soldier.Y <= (w.Platforms[i].Y) &&
 			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
 			upDis = (w.Platforms[i].Y) - soldier.Y
@@ -42,8 +42,7 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 			lowDisUp = upDis
 			lowUp = up
 		}
-
-		// is up or down?
+		// the platform that is down
 		if soldier.Y >= (w.Platforms[i].Y+w.Platforms[i].Height) &&
 			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
 			downDis = soldier.Y - (w.Platforms[i].Y + w.Platforms[i].Height)
