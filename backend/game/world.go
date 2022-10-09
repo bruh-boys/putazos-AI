@@ -18,28 +18,6 @@ type World struct {
 	Platforms     []Platform
 }
 
-// i should clean this shit
-func (w World) UpPlatformSoldier(soldier Soldier) float64 {
-	lowy := 100000.0
-	lowDis := 100000.0
-	y := 0.0
-	dis := 0.0
-
-	for i := 0; i < len(w.Platforms); i++ {
-		// is up or down?
-		if soldier.Y <= (w.Platforms[i].Y) &&
-			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
-			dis = soldier.Y - (w.Platforms[i].Y + w.Platforms[i].Height)
-			y = w.Platforms[i].Y + w.Platforms[i].Height
-		}
-		if lowDis > dis && dis >= 0 {
-			lowy = y
-			lowDis = dis
-		}
-
-	}
-	return lowy
-}
 func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 
 	down := 0.0
