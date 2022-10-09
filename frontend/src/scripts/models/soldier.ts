@@ -9,22 +9,21 @@ const soldier_states: {
 
     idle: function (this: Soldier) {
         // In case the state is in the last frame, reset it.
-        if (this.reset_state_if_endend()) return
+        if (this.reset_state_if_ended()) return
 
-        for (const action of ['attack', 'move', 'fall', 'jump']) {
-            if (this.actions.includes(action))
-                return this.change_state(action)
-        }
+        if (this.change_state_if_action(
+            [ 'attack', 'move', 'fall', 'jump' ]
+        )) return
 
         // Draw sprite...
     },
 
     move: function (this: Soldier) {
         // In case the state is in the last frame, reset it.
-        if (this.reset_state_if_endend()) return
+        if (this.reset_state_if_ended()) return
 
         if (!(
-            this.actions.includes('fall') || this.actions.includes('jump') &&
+            this.includes_some_action(['fall', 'jump']) &&
             this.actions.includes('move')
         ))
             return this.change_state('idle')
@@ -32,46 +31,46 @@ const soldier_states: {
         // ? I think isn't necessary in the frontend.
         // ? The client will send the position to the server
         // ? Or the server will send the position to the client.
+        // ? Maybe create a new sub function to handle this.
         this.direction === true
             ? this.position['x'] += this.velocity['x']
             : this.position['x'] -= this.velocity['x']
 
-        for (const action of ['attack', 'idle', 'fall', 'jump']) {
-            if (this.actions.includes(action))
-                return this.change_state(action)
-        }
+        if (this.change_state_if_action(
+            [ 'attack', 'idle', 'fall', 'jump' ]
+        )) return
 
         // Draw sprite...
     },
 
     jump: function (this: Soldier) {
-        for (const action of ['attack', 'move']) {
-            if (this.actions.includes(action))
-                return this.change_state(action)
-        }
+        if (this.change_state_if_action(
+            [ 'attack', 'move' ]
+        )) return
 
         // Handle jump
     },
 
     fall: function (this: Soldier) {
-        for (const action of ['attack', 'move']) {
-            if (this.actions.includes(action))
-                return this.change_state(action)
-        }
+        if (this.change_state_if_action(
+            [ 'attack', 'move' ]
+        )) return
 
         // Check if the entity is on the ground.
 
     },
 
     attack: function (this: Soldier) {
-        if (!this.actions.includes('attack'))
-            return this.change_state_to_previous()
-
         // Handle attack
+
+        // Add cosmetics, like a muzzle flash of a gun.
+        this.cosmetics.push('muzzle_flash')
     },
 
     death: function (this: Soldier) {
-        
+        // Handle death
+
+        // Draw sprite...
     },
 
 }

@@ -44,7 +44,7 @@ class Entity implements IEntity {
         this.ctx = ctx
     }
 
-    public reset_state_if_endend(): boolean {
+    public reset_state_if_ended(): boolean {
         const { amount, hold } = this.sprites[this.current_state]
 
         if (this.elapsed_states > amount * hold)
@@ -52,6 +52,22 @@ class Entity implements IEntity {
     
         this.change_state(this.current_state)
 
+        return true
+    }
+
+    public includes_some_action(actions: string[]) {
+        for (const action of this.actions)
+            for (const act of actions) if (action === act)
+                return true
+
+        return false
+    }
+
+    public change_state_if_action(actions: string[]) {
+        if (!this.includes_some_action(actions))
+            return false
+        
+        this.change_state(actions[0])
         return true
     }
 
