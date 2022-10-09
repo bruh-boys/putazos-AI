@@ -1,15 +1,40 @@
-type EntityTypes = Soldier | Projectile
+interface Position {
+    x: number, y: number, z: number
+}
 
-interface Entity<T extends EntityTypes> {
-    _id: T extends Soldier ? string : never,
+interface Soldier {
+    _id: string,
+    color: string
+    actions: string[],
+}
 
-    position: { x: number, y: number, z: number },
+//
+
+type EntityTypes = Soldier
+
+interface EntityMethods {
+    set_previous_state: (this: Entity<EntityTypes>) => void,
+    change_state: (this: Entity<EntityTypes>, state: string) => void,
+    call_state: (this: Entity<EntityTypes>, state: string) => void,
+}
+
+interface Entity<T extends EntityTypes> extends EntityMethods, Position {
+    ctx: CanvasRenderingContext2D,
+
+    sprites: { [key: string]: {
+        image_src: string,
+        amount: number,
+        hold: number
+    } },
+
+    previous_states: [string, number][],
+
+    elapsed_states: number,
+    current_state: string,
+
     states: {
-        [key: string]: (e: Entity<T>, i: number) => void
+        [key: string]: () => void 
     },
-
-    prev_states: string[],
-    state: string,
 
     entity: T
 }
