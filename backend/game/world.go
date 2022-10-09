@@ -13,7 +13,7 @@ type World struct {
 }
 
 func (w World) SoldierIsOnPlatform(soldier Soldier) float64 {
-	lowy := 10000.0
+	lowy := 100000.0
 	lowDis := 100000.0
 	y := 0.0
 	dis := 0.0
