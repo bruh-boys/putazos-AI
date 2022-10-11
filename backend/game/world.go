@@ -19,6 +19,11 @@ type World struct {
 	Platforms []Platform `json:"platforms"`
 }
 
+func NewWorld(width, height float64) (w World) {
+	w.Width = width
+	w.Height = height
+	return
+}
 func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 
 	down := 0.0

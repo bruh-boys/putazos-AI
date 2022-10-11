@@ -50,14 +50,14 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 	case "move-left":
 		s.Direction = false
 
-		if s.X > 0 && world.SidePlatforms(*s) != s.X-MovePerFrame {
+		if s.X > 0 && world.SidePlatforms(*s) < s.X-MovePerFrame {
 			s.X -= MovePerFrame
 		}
 
 	case "move-right":
 		s.Direction = true
 
-		if s.X > world.Width && world.SidePlatforms(*s) != s.X+MovePerFrame {
+		if s.X > world.Width && world.SidePlatforms(*s) > s.X+MovePerFrame {
 
 			s.X += MovePerFrame
 		}
@@ -85,6 +85,8 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 }
 
 // I need to do something with the platform , wait a second
+// use this while visualizing the map
+// hm
 func (s *Soldier) Moving(world World) {
 	if s.Death {
 		return
