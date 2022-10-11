@@ -31,7 +31,7 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 	lowDown := 100000.0
 	lowDisDown := 100000.0
 
-	up := 0.0
+	up := w.Height
 	upDis := 0.0
 	lowUp := 100000.0
 	lowDisUp := 100000.0
