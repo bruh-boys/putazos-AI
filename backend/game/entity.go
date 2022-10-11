@@ -30,7 +30,7 @@ type Soldier struct {
 func NewSoldier(width, height, pointOfShooting, x, y float64, direction bool) Soldier {
 	var s Soldier
 	s.Ammo = 30
-	s.RateFire = 1
+	s.RateFire = 5
 	s.Life = 100
 	s.Damage = 15
 	s.X = x
