@@ -79,6 +79,7 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 	case "reload":
 		if s.Ammo <= 0 {
 			s.WaitUntilFire = 5
+			s.Ammo = 30
 		}
 	}
 
@@ -92,10 +93,10 @@ func (s *Soldier) Moving(world World) {
 		return
 	}
 	down, up := world.SoldierIsOnPlatform(*s)
-	if s.Y+s.VelY > down && s.Y+s.VelY <= up {
+	if s.Y+s.VelY > down && s.Y+s.VelY+s.Height <= up {
 		s.VelY -= Gravity / MovePerFrame
 
-	} else if s.Y+s.VelY >= up && s.VelY > 0 {
+	} else if s.Y+s.VelY+s.Height >= up && s.VelY > 0 {
 		// if is down a platform it should get down lol
 		s.VelY = -Gravity / MovePerFrame
 

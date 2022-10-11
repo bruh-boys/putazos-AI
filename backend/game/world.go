@@ -2,8 +2,8 @@ package game
 
 const (
 	MovePerFrame    = 10.0 / FramesPerSecond
-	FramesPerSecond = 30.0
-	Gravity         = 5
+	FramesPerSecond = 30.0 // change it if you want but the frames per second are  fixed , and i will do nothing for change it
+	Gravity         = 1    // stupid ass song
 )
 
 type Platform struct {
