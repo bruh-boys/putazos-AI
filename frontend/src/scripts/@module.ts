@@ -1,10 +1,8 @@
+import { Entity } from './models/@module.js'
+
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')
 
-function game() {
+const entites: Entity[] = []
 
-}
-
-setInterval(
-    () => requestAnimationFrame(game), 1000 / 60
-)
+export { canvas, ctx, entites }

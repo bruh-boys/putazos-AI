@@ -1,124 +1,122 @@
-function change_state(this: Entity<EntityTypes>, state: string) {
-    if ((state in this.states) === false) {
-        throw new Error(`State "${state}" does not exists.`)
+class Entity implements IEntity {
+    protected readonly ctx: CanvasRenderingContext2D
 
+    // @ts-ignore - Value inserted by the child class.
+    protected readonly height: number
+
+    // @ts-ignore - Value inserted by the child class.
+    protected readonly width: number
+
+    // @ts-ignore - Value inserted by the child class.
+    protected readonly sprites: { [key: string]: {
+        image_src: string,
+        amount: number,
+        hold: number
+    } }
+
+    // @ts-ignore - Value inserted by the child class.
+    protected readonly states: {
+        [key: string]: (this: Entity) => void
     }
 
-    this.previous_states.push([this.current_state, this.elapsed_states])
+    protected previous_states: {
+        elapsed: number,
+        state: string
+    }[] = []
 
-    this.elapsed_states = 0
-    this.current_state = state
-}
+    protected elapsed_states: number = 0
+    protected current_state: string = 'spawn'
 
-// ? maybe I should use a more traditional method.
-// ? if this.isAttacking() { ... }
-// ? if this.isMoving() { ... }
-const entity_states = {
-    spawn: function (this: Entity<EntityTypes>) {
-        this.change_state('idle')
-    },
+    public direction: boolean = true
 
-    idle: function (this: Entity<EntityTypes>) {
-        for (const str of ['jump', 'crouch', 'move'])
-            this.entity.actions.includes(str) &&
-            this.change_state(str)
+    public position: IPosition = {
+        x: 0, y: 0, z: 0
+    }
 
-        // Draw sprite...
+    public velocity: IPosition = {
+        x: 0, y: 0, z: 0
+    }
 
-        // () => requestAnimationFrame(game), 1000 / 60 = 16.66...7
+    // Like a muzzle flash of a gun.
+    protected hidden_actions: string[] = []
 
-        // Use "this.elapsed_states" to draw the correct sprite position.
-        // "this.elapsed_states" is the amount of time the current state has been called.
+    public cosmetics: string[] = []
+    public actions: string[] = []
 
-        // amount: 5,
-        // hold = 10
-        // this.elapsed_states
+    constructor(ctx: CanvasRenderingContext2D, entity: IEntity) {
+        for (const [key, value] of Object.entries(entity))
+            (this as any)[key] = value
 
-        // const sprite = this.sprites[this.current_state]
+        this.ctx = ctx
+    }
 
-        // if (this.elapsed_states >= sprite.hold * sprite.amount) {
-        //    this.elapsed_states = 0
-        // }
+    public reset_state_if_ended(): boolean {
+        const { amount, hold } = this.sprites[this.current_state]
 
-    },
+        if (this.elapsed_states > amount * hold)
+            return false
+    
+        this.change_state(this.current_state)
 
-    move: function (this: Entity<EntityTypes>) {
-        for (const str of ['jump', 'crouch'])
-            this.entity.actions.includes(str) &&
-            this.change_state(str)
+        return true
+    }
 
-        if (!this.entity.actions.includes('move'))
-            this.call_state('idle')
+    public includes_some_action(actions: string[]) {
+        for (const action of this.actions)
+            for (const act of actions) if (action === act)
+                return true
+
+        return false
+    }
+
+    public change_state_if_action(actions: string[]) {
+        if (!this.includes_some_action(actions))
+            return false
         
-        // Handle movement...
-
-        // Draw sprite...
-    },
-
-    jump: function (this: Entity<EntityTypes>) {
-        // Handle jump...
-
-        // Draw sprite...
-    },
-
-    crouch: function (this: Entity<EntityTypes>) {
-        // Handle crouch...
-
-        // Draw sprite...
-    },
-
-    attack: function (this: Entity<EntityTypes>) {
-        // Handle attack...
-
-        // Draw sprite...
-
-        this.set_previous_state()
-    },
-
-    death: function (this: Entity<EntityTypes>) {
-        // Handle death...
-
-        // Draw sprite...
+        this.change_state(actions[0])
+        return true
     }
-}
 
-//
+    public change_state_to_previous() {
+        const { elapsed, state } = this.previous_states.pop() || 
+            { elapsed: 0, state: 'spawn' }
 
-function Entity_ <T extends EntityTypes> (this: Entity<T>, entity: T) {
-    const image_src = 'assets/soldier/' + entity.color
+        this.elapsed_states = elapsed
+        this.current_state = state
+    }
 
-    this.sprites = {
-        'idle': {
-            image_src: image_src + 'idle.png',
-            amount: 5,
-            hold: 0 // This is to keep the frame for a certain time.
-        },
-        'move': {
-            image_src: image_src + 'move.png',
-            amount: 6,
-            hold: 0
-        },
-        'jump': {
-            image_src: image_src + 'jump.png',
-            amount: 2,
-            hold: 0
-        },
-        'crouch': {
-            image_src: image_src + 'crouch.png',
-            amount: 3,
-            hold: 0
-        },
-        'death': {
-            image_src: image_src + 'death.png',
-            amount: 8,
-            hold: 0
+    public change_state(state: string) {
+        this.previous_states.push({
+            elapsed: this.elapsed_states,
+            state: this.current_state
+        })
+
+        this.elapsed_states = 0
+        this.current_state = state
+    }
+
+    protected update_() {
+        while (true) {
+            const previous_state = this.current_state,
+                previos_elapsed = this.elapsed_states
+
+            if (this.current_state in this.states)
+                this.states[this.current_state].call(this)
+            
+            else {} // Remove this entity.
+
+            if (
+                this.elapsed_states !== previos_elapsed ||
+                this.current_state !== previous_state
+            ) continue
+
+            this.elapsed_states++
+            break
         }
+
     }
 
-}
-
-const Entity = Entity_ as unknown as {
-    new (entity: any): {}
+    public update() {}
 }
 
 export { Entity }
