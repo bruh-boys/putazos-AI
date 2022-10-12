@@ -19,6 +19,8 @@ func NewGame(name string, blue, red Soldier) (g Game) {
 	g.Soldiers = []Soldier{blue, red}
 	return
 }
+
+// Maybe I should do this in at the same time idk
 func (g Game) Action(id int, action string) {
 	g.Soldiers[id].Action(action, g.World, g.Soldiers)
 
