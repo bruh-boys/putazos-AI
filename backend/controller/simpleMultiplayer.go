@@ -16,12 +16,14 @@ var (
 	Connections = map[*websocket.Conn]Player{}
 	games       = [][]game.Soldier{}
 	g           = game.NewGame("world.json")
-	id          = 0
+	id          = -1
 	last        = 0
 )
 
 // really basic multiplayer implemented with the ass
 func Multiplayer(w http.ResponseWriter, r *http.Request) {
+	id++
+
 	websocket.Handler(func(c *websocket.Conn) {
 		Connections[c] = Player{game.NewSoldier(map[bool]string{true: "blue", false: "red"}[id%2 == 0], 27, 31, 15, 0, 0, true), id % 2}
 		if id/2 != last {
@@ -48,6 +50,5 @@ func Multiplayer(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}).ServeHTTP(w, r)
-	id++
 
 }
