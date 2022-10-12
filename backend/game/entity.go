@@ -71,18 +71,14 @@ var actions = map[string]func(s *Soldier, ss []Soldier, w World){
 	},
 	"attack": func(s *Soldier, ss []Soldier, w World) {
 		if s.WaitUntilFire < 1 && s.Ammo > 0 {
-			s.Shooting(ss)
-
 			s.WaitUntilFire += s.RateFire / FramesPerSecond
+			s.Shooting(ss)
 		}
 
 	},
 	"reload": func(s *Soldier, ss []Soldier, w World) {
-		if s.Ammo <= 0 { // debe de recargar
-			s.WaitUntilFire = 5
-			s.Ammo = MaxAmmo
-		}
-
+		s.WaitUntilFire = 0
+		s.Ammo = MaxAmmo
 	},
 	"idle": func(s *Soldier, ss []Soldier, w World) {
 
