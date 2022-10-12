@@ -12,7 +12,7 @@ type Map2D struct {
 
 type Collision struct {
 	Position Map2D
-	Radius   Map2D
+	Radius   float64
 }
 
 type World struct {
@@ -29,7 +29,7 @@ func (w World) OnCollision(pos Map2D, radius float64) (Map Map2D) {
 
 		// I think it's working, but i'm not sure.
 		if pos.X+radius >= collision.Position.X &&
-			pos.X <= collision.Position.X+collision.Radius.X {
+			pos.X <= collision.Position.X+collision.Radius {
 			return Map2D{
 				X: collision.Position.X,
 				Y: -0.01,
@@ -38,7 +38,7 @@ func (w World) OnCollision(pos Map2D, radius float64) (Map Map2D) {
 		}
 
 		if pos.Y+radius >= collision.Position.Y &&
-			pos.Y <= collision.Position.Y+collision.Radius.Y {
+			pos.Y <= collision.Position.Y+collision.Radius {
 			return Map2D{
 				Y: collision.Position.Y,
 				X: -0.01,
