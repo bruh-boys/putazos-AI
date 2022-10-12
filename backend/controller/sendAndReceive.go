@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	world game.World
+	g = game.NewGame("world.json", game.NewSoldier(10, 10, 5, 0, 0, false), game.NewSoldier(10, 10, 5, 0, 0, false))
 )
 
 func SendInfo(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +16,7 @@ func SendInfo(w http.ResponseWriter, r *http.Request) {
 
 		for {
 			// use the info for getting the soldiers and all that stuff
-			websocket.JSON.Send(c, world)
+			websocket.JSON.Send(c, g)
 			// just use the data that you have for seeing it in the game
 		}
 
