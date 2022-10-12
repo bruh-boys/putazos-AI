@@ -9,7 +9,7 @@ const (
 type Platform struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
-	Base   float64 `json:"base"`
+	Width  float64 `json:"width"`
 	Height float64 `json:"height"`
 }
 
@@ -19,11 +19,6 @@ type World struct {
 	Platforms []Platform `json:"platforms"`
 }
 
-func NewWorld(width, height float64) (w World) {
-	w.Width = width
-	w.Height = height
-	return
-}
 func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 
 	down := 0.0
@@ -39,14 +34,14 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 	for i := 0; i < len(w.Platforms); i++ {
 		// with this i get the platform that its up
 		if soldier.Y <= (w.Platforms[i].Y) &&
-			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
+			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Width) && soldier.X >= w.Platforms[i].X) {
 			upDis = (w.Platforms[i].Y) - soldier.Y
 			up = w.Platforms[i].Y
 		}
 
 		// the platform that is down
 		if soldier.Y >= (w.Platforms[i].Y+w.Platforms[i].Height) &&
-			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Base) && soldier.X >= w.Platforms[i].X) {
+			(soldier.X <= (w.Platforms[i].X+w.Platforms[i].Width) && soldier.X >= w.Platforms[i].X) {
 			downDis = soldier.Y - (w.Platforms[i].Y + w.Platforms[i].Height)
 			down = w.Platforms[i].Y + w.Platforms[i].Height
 		}
@@ -69,9 +64,9 @@ func (w World) SidePlatforms(soldier Soldier) (x float64) {
 		dx := 0.0
 		if soldier.Direction { //left
 			// first I check if is in the area that I want
-			if w.Platforms[i].X+w.Platforms[i].Base < soldier.X && soldier.X-(w.Platforms[i].X+w.Platforms[i].Base) < (closeDis) {
+			if w.Platforms[i].X+w.Platforms[i].Width < soldier.X && soldier.X-(w.Platforms[i].X+w.Platforms[i].Width) < (closeDis) {
 				dis = soldier.Y - w.Platforms[i].X
-				dx = w.Platforms[i].X + w.Platforms[i].Base
+				dx = w.Platforms[i].X + w.Platforms[i].Width
 
 			}
 
