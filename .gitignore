@@ -1,2 +1,5 @@
 frontend/public/scripts
 frontend/public/styles
+
+frontend/@types/*.js.map
+frontend/@types/*.js

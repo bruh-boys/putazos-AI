@@ -1,7 +1,22 @@
 package main
 
-import "github.com/bruh-boys/putazos-ai/backend/router"
+import (
+	"log"
+	"os"
+
+	"github.com/bruh-boys/putazos-ai/backend/router"
+)
 
 func main() {
-	router.SetupRoutes()
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+
+	}
+
+	log.Panicln(
+		router.SetupRoutes(port),
+	)
+
 }

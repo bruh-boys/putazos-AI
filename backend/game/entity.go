@@ -50,44 +50,55 @@ func NewSoldier(faction string, width, height, pointOfShooting, x, y float64, di
 
 }
 
-func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
-
-	switch action {
-
-	case "move-left":
+var actions = map[string]func(s *Soldier, ss []Soldier, w World){
+	"move-right": func(s *Soldier, ss []Soldier, w World) {
 		s.Direction = false
 
-		if s.X > 0 && world.SidePlatforms(*s) < s.X-MovePerFrame {
+		if s.X > 0 && w.SidePlatforms(*s) < s.X-MovePerFrame {
 			s.X -= MovePerFrame
+
 		}
 
-	case "move-right":
+	},
+	"move-left": func(s *Soldier, ss []Soldier, w World) {
 		s.Direction = true
 
-		if s.X > world.Width && world.SidePlatforms(*s) > s.X+MovePerFrame {
-
+		if s.X > w.Width && w.SidePlatforms(*s) > s.X+MovePerFrame {
 			s.X += MovePerFrame
-		}
-	case "jump":
 
-		// in the world this should
-
-		if s.VelY == 0 {
-			s.VelY = 15
 		}
 
-	case "shoot":
+	},
+	"attack": func(s *Soldier, ss []Soldier, w World) {
 		if s.WaitUntilFire < 1 && s.Ammo > 0 {
-			s.Shooting(soldiers)
+			s.Shooting(ss)
 
 			s.WaitUntilFire += s.RateFire / FramesPerSecond
 		}
 
-	case "reload":
+	},
+	"reload": func(s *Soldier, ss []Soldier, w World) {
 		if s.Ammo <= 0 { // debe de recargar
 			s.WaitUntilFire = 5
 			s.Ammo = MaxAmmo
 		}
+
+	},
+	"idle": func(s *Soldier, ss []Soldier, w World) {
+
+	},
+	"jump": func(s *Soldier, ss []Soldier, w World) {
+		if s.VelY == 0 {
+			s.VelY = 15
+		}
+
+	},
+}
+
+func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
+	if act, ok := actions[action]; ok {
+		act(s, soldiers, world)
+
 	}
 
 }

@@ -1,17 +1,20 @@
 package router
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/bruh-boys/putazos-ai/backend/controller"
 )
 
-func SetupRoutes() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+func SetupRoutes(port string) error {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello World"))
+	})
 
+	http.HandleFunc("/game/gateway", controller.Multiplayer)
 	http.HandleFunc("/game", controller.SeeGame)
-	http.HandleFunc("/Multiplayer-connection", controller.Multiplayer)
 
-	http.ListenAndServe(":8080", nil)
-
+	log.Println("Listening on port " + port)
+	return http.ListenAndServe((":" + port), nil)
 }
