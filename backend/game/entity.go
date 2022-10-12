@@ -77,14 +77,14 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 		}
 
 	case "shoot":
-		if s.WaitUntilFire < 1 {
+		if s.WaitUntilFire < 1 && s.Ammo > 0 {
 			s.Shooting(soldiers)
 
 			s.WaitUntilFire += s.RateFire / FramesPerSecond
 		}
 
 	case "reload":
-		if s.Ammo <= 0 {
+		if s.Ammo <= 0 { // debe de recargar
 			s.WaitUntilFire = 5
 			s.Ammo = MaxAmmo
 		}
@@ -105,8 +105,8 @@ func (s *Soldier) Moving(world World) {
 	if s.Y+s.VelY > down && s.Y+s.VelY+s.Height <= up {
 		s.VelY -= Gravity / MovePerFrame
 
-	} else if s.Y+s.VelY+s.Height >= up && s.VelY > 0 {
-		// if is down a platform it should get down lol
+	} else if s.VelY > 0 {
+		// no quiero que sobrepase algo xd
 		s.VelY = -Gravity / MovePerFrame
 
 	} else {
