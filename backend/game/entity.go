@@ -2,13 +2,6 @@ package game
 
 import "math"
 
-/*
-x,y+height    x+width,y+height
-
-shooting idk
-
-x,y     0   x+width,height
-*/
 const (
 	MaxAmmo   = 30
 	MaxHealth = 100
