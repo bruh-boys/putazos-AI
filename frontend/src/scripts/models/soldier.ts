@@ -28,14 +28,6 @@ const soldier_states: {
         ))
             return this.change_state('idle')
 
-        // ? I think isn't necessary in the frontend.
-        // ? The client will send the position to the server
-        // ? Or the server will send the position to the client.
-        // ? Maybe create a new sub function to handle this.
-        this.direction === true
-            ? this.position['x'] += this.velocity['x']
-            : this.position['x'] -= this.velocity['x']
-
         if (this.change_state_if_action(
             [ 'attack', 'idle', 'fall', 'jump' ]
         )) return
