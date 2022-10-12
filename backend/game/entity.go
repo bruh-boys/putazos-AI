@@ -9,6 +9,12 @@ shooting idk
 
 x,y     0   x+width,height
 */
+const (
+	MaxAmmo   = 30
+	MaxHealth = 100
+	MaxDamage = 15
+)
+
 type Soldier struct {
 	Height          float64 `json:"height"`
 	Width           float64 `json:"width"`
@@ -27,18 +33,19 @@ type Soldier struct {
 	ReloadingSpeed  float64
 }
 
-func NewSoldier(width, height, pointOfShooting, x, y float64, direction bool) Soldier {
+func NewSoldier(faction string, width, height, pointOfShooting, x, y float64, direction bool) Soldier {
 	var s Soldier
-	s.Ammo = 30
+	s.Ammo = MaxAmmo
 	s.RateFire = 5
-	s.Life = 100
-	s.Damage = 15
+	s.Life = MaxHealth
+	s.Damage = MaxDamage
 	s.X = x
 	s.Y = y
 	s.Direction = direction
 	s.PointOfShooting = pointOfShooting
 	s.Width = width
 	s.Height = height
+	s.Faction = faction
 	return s
 
 }
@@ -79,7 +86,7 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 	case "reload":
 		if s.Ammo <= 0 {
 			s.WaitUntilFire = 5
-			s.Ammo = 30
+			s.Ammo = MaxAmmo
 		}
 	}
 
@@ -89,6 +96,8 @@ func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
 // use this while visualizing the map
 // hm
 func (s *Soldier) Moving(world World) {
+	s.Death = !(s.Life <= 0)
+
 	if s.Death {
 		return
 	}
@@ -113,7 +122,6 @@ func (s *Soldier) Moving(world World) {
 	}
 
 	s.Y += s.VelY
-	s.Death = !(s.Life <= 0)
 	// if s.X  are smaller than world.Width , I should have 0
 	// if they are bigger i would get a 1 or something
 
@@ -125,6 +133,9 @@ func (s *Soldier) Shooting(soldiers []Soldier) {
 	closeDis := 100000.0
 	for i := 0; i < len(soldiers); i++ {
 		dis := 1000000.0
+		if s == &soldiers[i] {
+			continue
+		}
 		if s.Direction { //left
 			// first I check if is in the area that I want
 			if soldiers[i].X < s.X && s.X-soldiers[i].X < (closeDis) {

@@ -9,33 +9,36 @@ import (
 
 type Game struct {
 	World       World      `json:"world"`
-	Soldiers    []Soldier  `json:"soldiers"`
 	SpawnPoints []Platform `json:"spawn-points"`
-	GameMap     []float64  `json:"game-map"`
+	GameMapO    []float64  `json:"game-map"`
 }
 
-func NewGame(name string, blue, red Soldier) (g Game) {
+func NewGame(name string) (g Game) {
 	file, _ := os.Open(name)
 	json.NewDecoder(file).Decode(&g)
-	rand.Shuffle(len(g.SpawnPoints), func(i, j int) { g.SpawnPoints[i], g.SpawnPoints[j] = g.SpawnPoints[j], g.SpawnPoints[i] })
-	blue.X = g.SpawnPoints[0].X
-	blue.Y = g.SpawnPoints[0].Y
-	red.X = g.SpawnPoints[1].X
-	red.Y = g.SpawnPoints[1].Y
 
-	g.Soldiers = []Soldier{blue, red}
 	return
 }
 
 // Maybe I should do this in at the same time idk
-func (g Game) Action(id int, action string) {
-	g.Soldiers[id].Action(action, g.World, g.Soldiers)
+func (g Game) Action(id int, action string, soldiers []Soldier) {
+	soldiers[id].Action(action, g.World, soldiers)
 
 }
-func (g Game) DoSomethingPerFrame() {
+func (g Game) Spawn(soldier Soldier) {
+	soldier.Life = MaxHealth
+	rand.Shuffle(len(g.SpawnPoints), func(i, j int) { g.SpawnPoints[i], g.SpawnPoints[j] = g.SpawnPoints[j], g.SpawnPoints[i] })
+	soldier.X = g.SpawnPoints[1].X
+	soldier.Y = g.SpawnPoints[1].Y
 
-	for _, s := range g.Soldiers {
+}
+func (g Game) DoSomethingPerFrame(soldiers []Soldier) {
+
+	for _, s := range soldiers {
 		s.Moving(g.World)
+		if s.Death {
+			g.Spawn(s)
+		}
 	}
 	time.Sleep(time.Second / FramesPerSecond)
 }
