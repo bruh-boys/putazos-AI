@@ -12,7 +12,7 @@ type Map2D struct {
 
 type Collision struct {
 	Position Map2D
-	Radius   float64
+	Radius   Map2D
 }
 
 type World struct {
@@ -24,29 +24,18 @@ func (w World) GenerateEntity(pos Map2D, entity string) {
 
 }
 
-func (w World) OnCollision(pos Map2D, radius float64) (Map Map2D) {
+func (w World) OnCollision(pos Map2D, radius Map2D) (Collision, bool) {
+
 	for _, collision := range w.Collisions {
+		if pos.X+radius.X >= collision.Position.X &&
+			pos.X <= collision.Position.X+collision.Radius.X &&
+			pos.Y+radius.Y >= collision.Position.Y &&
+			pos.Y <= collision.Position.Y+collision.Radius.Y {
 
-		// I think it's working, but i'm not sure.
-		if pos.X+radius >= collision.Position.X &&
-			pos.X <= collision.Position.X+collision.Radius {
-			return Map2D{
-				X: collision.Position.X,
-				Y: -0.01,
-			}
-
-		}
-
-		if pos.Y+radius >= collision.Position.Y &&
-			pos.Y <= collision.Position.Y+collision.Radius {
-			return Map2D{
-				Y: collision.Position.Y,
-				X: -0.01,
-			}
-
+			return collision, true
 		}
 
 	}
 
-	return Map2D{}
+	return Collision{}, false
 }

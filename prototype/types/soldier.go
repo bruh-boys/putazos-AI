@@ -1,6 +1,8 @@
 package prototype
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	RateFire  = 500
@@ -10,12 +12,12 @@ const (
 )
 
 type Soldier struct {
-	Faction string  `json:"faction"`
-	Radius  float64 `json:"radius"`
-	Health  uint8   `json:"health"`
+	Faction string `json:"faction"`
+	Health  uint8  `json:"health"`
 
 	Position Map2D `json:"position"`
 	Velocity Map2D
+	Radius   Map2D `json:"radius"`
 
 	PointOfShooting float64
 	ReloadingSpeed  float64
@@ -28,66 +30,36 @@ type Soldier struct {
 }
 
 func (s *Soldier) Shoot() {
-	if (s.LastShot + RateFire) > time.Now().UnixNano() {
+	if s.LastShot > time.Now().UnixNano() {
 
 		return
 	}
 
-	s.LastShot = time.Now().UnixMilli()
+	s.LastShot = time.Now().UnixMilli() + RateFire
 
 	s.World.GenerateEntity(Map2D{
-		Y: s.Position.Y + (s.Radius / 2),
-		X: s.Position.X + s.Radius,
+		Y: s.Position.Y + (s.Radius.Y / 2),
+		X: s.Position.X + s.Radius.X,
 	}, "bullet")
 
 }
 
 func (s *Soldier) Move() {
-	// Check if the next position is valid.
-	world := s.World.OnCollision(Map2D{
+	// I think with math you only need calculate the collision once.
+	// But I don't know how to do it.
+
+	if _, on := s.World.OnCollision(Map2D{
 		X: s.Position.X + (s.Velocity.X / FramesPerSecond),
-		Y: s.Position.Y + (s.Velocity.Y / FramesPerSecond),
-	}, s.Radius)
-
-	// If the next position is not valid, move the soldier to the valid position.
-	// If the next position is valid, move the soldier to the next position.
-	if world.X != -0.01 {
-		if s.Direction {
-			s.Position.X += s.Velocity.X / FramesPerSecond
-
-		} else {
-			s.Position.X -= s.Velocity.X / FramesPerSecond
-
-		}
-
-	} else {
-		s.Velocity.X = world.X
-
+		Y: s.Position.Y,
+	}, s.Radius); on {
+		s.Velocity.X = 0
 	}
 
-	// If the next position is not valid, move the soldier to the valid position.
-	// If the next position is valid, move the soldier to the next position.
-	if world.Y != -0.01 {
-		// Doing this create a jump effect.
-		if s.Velocity.Y > 0 {
-			s.Position.Y += s.Velocity.Y / FramesPerSecond
-
-		} else {
-			s.Position.Y -= s.Velocity.Y / FramesPerSecond
-
-		}
-
-		s.Velocity.Y -= Gravity / FramesPerSecond
-	} else {
-		// Gravity damage.
-		if s.Velocity.Y < 0 {
-			s.Health += uint8(s.Velocity.Y / -4)
-
-		}
-
-		s.Position.Y = world.Y
+	if _, on := s.World.OnCollision(Map2D{
+		Y: s.Position.Y + (s.Velocity.Y / FramesPerSecond),
+		X: s.Position.X,
+	}, s.Radius); on {
 		s.Velocity.Y = 0
-
 	}
 
 }
@@ -100,7 +72,10 @@ func (s *Soldier) Update() bool {
 		return true
 	}
 
-	s.Shoot()
+	if s.Health > 0 {
+		s.Shoot()
+
+	}
 
 	return false
 }
