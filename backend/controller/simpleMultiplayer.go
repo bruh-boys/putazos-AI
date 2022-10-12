@@ -46,11 +46,10 @@ func Multiplayer(w http.ResponseWriter, r *http.Request) {
 			}
 
 			games[id/2] = append(games[id/2], Connections[c].Soldier)
-			id++
-
+	
 			g.Spawn(Connections[c].Soldier)
 			identification := id / 2
-
+			id++
 			go func() {
 				for {
 					action := ""
