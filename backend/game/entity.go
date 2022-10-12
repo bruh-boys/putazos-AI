@@ -77,8 +77,11 @@ var actions = map[string]func(s *Soldier, ss []Soldier, w World){
 
 	},
 	"reload": func(s *Soldier, ss []Soldier, w World) {
-		s.WaitUntilFire = 0
-		s.Ammo = MaxAmmo
+		if s.Ammo < MaxAmmo {
+			s.WaitUntilFire += s.RateFire / FramesPerSecond // If he is reloading he cant shoot
+			s.Ammo = MaxAmmo
+		}
+
 	},
 	"idle": func(s *Soldier, ss []Soldier, w World) {
 
