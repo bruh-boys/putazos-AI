@@ -30,7 +30,7 @@ func (w World) SoldierIsOnPlatform(soldier Soldier) (float64, float64) {
 	upDis := 0.0
 	lowUp := 100000.0
 	lowDisUp := 100000.0
-
+	// i hate the antichrist
 	for i := 0; i < len(w.Platforms); i++ {
 		// with this i get the platform that its up
 		if soldier.Y <= (w.Platforms[i].Y) &&
@@ -63,8 +63,11 @@ func (w World) SidePlatforms(soldier Soldier) (x float64) {
 		dis := 1000000.0
 		dx := 0.0
 		if soldier.Direction { //left
+
 			// first I check if is in the area that I want
-			if w.Platforms[i].X+w.Platforms[i].Width < soldier.X && soldier.X-(w.Platforms[i].X+w.Platforms[i].Width) < (closeDis) {
+			// i hate this shit
+			if w.Platforms[i].X+w.Platforms[i].Width < soldier.X &&
+				soldier.X-(w.Platforms[i].X+w.Platforms[i].Width) < (closeDis) {
 				dis = soldier.Y - w.Platforms[i].X
 				dx = w.Platforms[i].X + w.Platforms[i].Width
 
@@ -77,7 +80,7 @@ func (w World) SidePlatforms(soldier Soldier) (x float64) {
 			dx = w.Platforms[i].X
 		}
 
-		if soldier.Y > w.Platforms[i].Y && soldier.Y < w.Platforms[i].Y+w.Platforms[i].Height {
+		if soldier.Y+soldier.Height > w.Platforms[i].Y && soldier.Y < w.Platforms[i].Y+w.Platforms[i].Height {
 			closeDis = dis
 			x = dx
 
