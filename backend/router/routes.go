@@ -9,7 +9,9 @@ import (
 func SetupRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
 
-	http.HandleFunc("/game", controller.SendInfo)
+	http.HandleFunc("/game", controller.SeeGame)
+	http.HandleFunc("/Multiplayer-connection", controller.Multiplayer)
+
 	http.ListenAndServe(":8080", nil)
 
 }
