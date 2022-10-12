@@ -45,21 +45,36 @@ func (s *Soldier) Shoot() {
 }
 
 func (s *Soldier) Move() {
-	// I think with math you only need calculate the collision once.
-	// But I don't know how to do it.
+	s.Velocity.Y += Gravity
 
-	if _, on := s.World.OnCollision(Map2D{
-		X: s.Position.X + (s.Velocity.X / FramesPerSecond),
-		Y: s.Position.Y,
-	}, s.Radius); on {
-		s.Velocity.X = 0
+	s.Position.X += (s.Velocity.X / FramesPerSecond)
+	s.Position.Y += (s.Velocity.Y / FramesPerSecond)
+
+	if coll, on := s.World.OnCollision(s.Position, s.Radius); on {
+		if s.Velocity.X < 0 {
+			s.Position.X = coll.Position.X + coll.Radius.X + 0.01
+
+		}
+
+		if s.Velocity.X > 0 {
+			s.Position.X = coll.Position.X - coll.Radius.X - 0.01
+
+		}
+
 	}
 
-	if _, on := s.World.OnCollision(Map2D{
-		Y: s.Position.Y + (s.Velocity.Y / FramesPerSecond),
-		X: s.Position.X,
-	}, s.Radius); on {
-		s.Velocity.Y = 0
+	if coll, on := s.World.OnCollision(s.Position, s.Radius); on {
+		if s.Velocity.Y < 0 {
+			s.Velocity.Y = 0
+			s.Position.Y = coll.Position.Y + coll.Radius.Y + 0.01
+		}
+
+		if s.Velocity.Y > 0 {
+			s.Velocity.Y = 0
+			s.Position.Y = coll.Position.Y - coll.Radius.Y - 0.01
+
+		}
+
 	}
 
 }
