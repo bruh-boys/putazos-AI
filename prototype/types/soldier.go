@@ -1,14 +1,16 @@
-package prototype
+package types
 
 import (
 	"time"
 )
 
 const (
-	RateFire  = 500
-	MaxHealth = 100
-	MaxDamage = 15
-	MaxAmmo   = 30
+	ReloadingSpeed = 1500
+	RateFire       = 500
+
+	MaxHealth uint8 = 100
+	MaxDamage uint8 = 15
+	MaxAmmo   uint8 = 30
 )
 
 type Soldier struct {
@@ -19,6 +21,8 @@ type Soldier struct {
 	Velocity Map2D
 	Radius   Map2D `json:"radius"`
 
+	actions map[string]bool
+
 	PointOfShooting float64
 	ReloadingSpeed  float64
 	LastShot        int64
@@ -27,6 +31,12 @@ type Soldier struct {
 	Direction    bool
 
 	World *World
+	Id    int
+}
+
+func (s *Soldier) Action(act string, on bool) {
+	s.actions[act] = on
+
 }
 
 func (s *Soldier) Shoot() {
