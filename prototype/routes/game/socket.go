@@ -24,6 +24,8 @@ var Factions = map[bool]string{
 func NewGame(c chan int) {
 	id := len(Games) + 1
 
+	Games[id] = &types.World{}
+
 	c <- id
 	<-c
 
