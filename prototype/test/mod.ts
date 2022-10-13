@@ -1,9 +1,12 @@
-const socket = new WebSocket("ws://localhost:8080/game/socket/", ["tpc"]);
+const socket = new WebSocket("ws://localhost:8080/game/socket/");
 
 socket.onopen = () => {
     console.log("connected");
 
-    socket.send("");
+    socket.send(JSON.stringify({
+        action: "move-left",
+        active: true
+    }))
 }
 
 socket.onmessage = (event) => {

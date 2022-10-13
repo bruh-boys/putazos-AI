@@ -21,7 +21,7 @@ type Soldier struct {
 	Velocity Map2D
 	Radius   Map2D `json:"radius"`
 
-	actions map[string]bool
+	Actions map[string]bool
 
 	PointOfShooting float64
 	ReloadingSpeed  float64
@@ -34,8 +34,8 @@ type Soldier struct {
 	Id    int
 }
 
-func (s *Soldier) Action(act string, on bool) {
-	s.actions[act] = on
+func (s *Soldier) Action(action string, value bool) {
+	s.Actions[action] = value
 
 }
 
@@ -89,7 +89,28 @@ func (s *Soldier) Move() {
 
 }
 
+var actions = map[string]func(s *Soldier){
+	"left": func(s *Soldier) {
+		s.Velocity.X = -1
+	},
+	"right": func(s *Soldier) {
+		s.Velocity.X = 1
+	},
+	"up": func(s *Soldier) {
+		s.Velocity.Y = 1.5
+	},
+	"down": func(s *Soldier) {
+
+	},
+}
+
 func (s *Soldier) Update() bool {
+	for action, value := range s.Actions {
+		if value {
+			actions[action](s)
+		}
+	}
+
 	s.Move()
 
 	if s.Health <= 0 && s.Velocity.Y == 0 {
@@ -97,7 +118,7 @@ func (s *Soldier) Update() bool {
 		return true
 	}
 
-	if s.Health > 0 {
+	if s.Health > 0 && s.Actions["shoot"] {
 		s.Shoot()
 
 	}

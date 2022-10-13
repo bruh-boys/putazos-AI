@@ -1,9 +1,8 @@
 package game
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/bruh-boys/putazos-ai/prototype/models"
@@ -11,102 +10,39 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var (
-	Connections = map[*websocket.Conn]*types.Soldier{}
-	Games       = map[int]*types.World{}
-)
-
-var Factions = map[bool]string{
-	false: "blue",
-	true:  "red",
-}
-
-func NewGame(c chan int) {
-	id := len(Games) + 1
-
-	Games[id] = &types.World{}
-
-	c <- id
-	<-c
-
-	for {
-		time.Sleep(time.Second / types.FramesPerSecond)
-
-		if len(Games[id].Soldiers) == 0 {
-
-			delete(Games, id)
-
-			break
-		}
-
-		for _, soldier := range Connections {
-			soldier.Move()
-
-		}
-
-	}
-
+type Response struct {
+	Action string `json:"action"`
+	Active bool   `json:"active"`
 }
 
 func ListenMessages(ws *websocket.Conn) {
 	for {
-		var action string = ""
+		var response Response
 
-		if err := websocket.Message.Receive(ws, &action); err != nil {
+		if err := websocket.Message.Receive(ws, &response); err != nil {
 
 			continue
 		}
 
-		act := strings.Split(strings.ReplaceAll(action, " ", ""), "@")
-
-		if val, err := strconv.ParseBool(act[1]); err == nil {
-			Connections[ws].Action(act[0], val)
-
-		}
+		models.World.Soldiers[ws].Action(
+			response.Action, response.Active,
+		)
 
 	}
 
 }
 
 func SendMessages(ws *websocket.Conn) {
-	var world *types.World = nil
+	for {
+		time.Sleep(time.Second * 1)
 
-	for _, game := range Games {
-		if len(game.Soldiers) < 6 {
-			world = game
+		var soldiers []types.Soldier
 
+		for _, soldier := range models.World.Soldiers {
+			soldiers = append(soldiers, *soldier)
 		}
 
-	}
-
-	c := make(chan int)
-
-	if world == nil {
-		go NewGame(c)
-
-	}
-
-	id := <-c
-
-	world.Soldiers = append(world.Soldiers, models.NewSoldier(
-		id,
-		Factions[id%2 == 0],
-		types.Map2D{
-			X: 0,
-			Y: 0,
-		},
-	))
-
-	c <- -1
-
-	for {
-		time.Sleep(time.Second / types.FramesPerSecond)
-
-		websocket.Message.Send(ws, struct {
-			Soldiers []*types.Soldier
-		}{
-			Soldiers: Connections[ws].World.Soldiers,
-		})
+		websocket.JSON.Send(ws, fmt.Sprintf("%#v", soldiers))
 
 	}
 
@@ -115,13 +51,16 @@ func SendMessages(ws *websocket.Conn) {
 func SocketHandler(wr http.ResponseWriter, r *http.Request) {
 	socket := websocket.Server{
 		Handler: func(ws *websocket.Conn) {
+			models.World.NewSoldier(ws)
+
+			if models.World.Initialized == false {
+				go models.RunWorld()
+
+			}
+
 			go ListenMessages(ws)
 
-			for {
-				time.Sleep(time.Second * 2)
-
-				SendMessages(ws)
-			}
+			SendMessages(ws)
 		},
 	}
 

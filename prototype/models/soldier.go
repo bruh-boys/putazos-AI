@@ -15,6 +15,8 @@ func NewSoldier(id int, faction string, position types.Map2D) *types.Soldier {
 		ReloadingSpeed:  types.ReloadingSpeed,
 		LastShot:        0,
 
+		Actions: map[string]bool{},
+
 		WeaponDamage: types.MaxDamage,
 		Direction:    true,
 		Id:           id,

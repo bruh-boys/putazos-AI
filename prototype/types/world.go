@@ -1,5 +1,9 @@
 package types
 
+import (
+	"golang.org/x/net/websocket"
+)
+
 const (
 	FramesPerSecond = 30.0
 	Gravity         = 1
@@ -16,9 +20,10 @@ type Collision struct {
 }
 
 type World struct {
-	Soldiers   []*Soldier
-	Collisions []Collision
-	Radius     Map2D
+	Soldiers    map[*websocket.Conn]*Soldier
+	Collisions  []Collision
+	Radius      Map2D
+	Initialized bool
 }
 
 func (w *World) Update() {
@@ -28,13 +33,18 @@ func (w *World) Update() {
 
 }
 
-func (w *World) NewSoldier(id int, faction string, position Map2D) *Soldier {
+var Factions = map[bool]string{
+	false: "blue",
+	true:  "red",
+}
+
+func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 	s := &Soldier{
-		Faction: faction,
+		Faction: Factions[len(w.Soldiers)%2 == 0],
 		Health:  MaxHealth,
 
-		Position: position,
-		Velocity: Map2D{},
+		Position: Map2D{X: 0, Y: 0},
+		Velocity: Map2D{X: 0, Y: 0},
 		Radius:   Map2D{X: 0.5, Y: 1},
 
 		PointOfShooting: 0.6,
@@ -43,12 +53,12 @@ func (w *World) NewSoldier(id int, faction string, position Map2D) *Soldier {
 
 		WeaponDamage: MaxDamage,
 		Direction:    true,
-		Id:           id,
 
 		World: w,
 	}
 
-	w.Soldiers = append(w.Soldiers, s)
+	w.Soldiers[ws] = s
+
 	return s
 }
 
