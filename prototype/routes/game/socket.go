@@ -13,11 +13,37 @@ import (
 
 var (
 	Connections = map[*websocket.Conn]*types.Soldier{}
+	Games       = map[int]*types.World{}
 )
 
 var Factions = map[bool]string{
 	false: "blue",
 	true:  "red",
+}
+
+func NewGame(c chan int) {
+	id := len(Games) + 1
+
+	c <- id
+	<-c
+
+	for {
+		time.Sleep(time.Second / types.FramesPerSecond)
+
+		if len(Games[id].Soldiers) == 0 {
+
+			delete(Games, id)
+
+			break
+		}
+
+		for _, soldier := range Connections {
+			soldier.Move()
+
+		}
+
+	}
+
 }
 
 func ListenMessages(ws *websocket.Conn) {
@@ -41,19 +67,38 @@ func ListenMessages(ws *websocket.Conn) {
 }
 
 func SendMessages(ws *websocket.Conn) {
-	id := len(Connections) + 1
+	var world *types.World = nil
 
-	Connections[ws] = models.NewSoldier(
+	for _, game := range Games {
+		if len(game.Soldiers) < 6 {
+			world = game
+
+		}
+
+	}
+
+	c := make(chan int)
+
+	if world == nil {
+		go NewGame(c)
+
+	}
+
+	id := <-c
+
+	world.Soldiers = append(world.Soldiers, models.NewSoldier(
 		id,
 		Factions[id%2 == 0],
 		types.Map2D{
 			X: 0,
 			Y: 0,
 		},
-	)
+	))
+
+	c <- -1
 
 	for {
-		Connections[ws].World.Update()
+		time.Sleep(time.Second / types.FramesPerSecond)
 
 		websocket.Message.Send(ws, struct {
 			Soldiers []*types.Soldier
