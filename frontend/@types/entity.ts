@@ -1,7 +1,7 @@
 interface IEntity {
     direction: boolean, // false = left, true = right
-    position: IPosition,
-    velocity: IPosition,
+    position: Position,
+    velocity: Position,
     actions: string[],
     cosmetics: string[]
 }

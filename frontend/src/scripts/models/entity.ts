@@ -29,11 +29,11 @@ class Entity implements IEntity {
 
     public direction: boolean = true
 
-    public position: IPosition = {
+    public position: Position = {
         x: 0, y: 0, z: 0
     }
 
-    public velocity: IPosition = {
+    public velocity: Position = {
         x: 0, y: 0, z: 0
     }
 

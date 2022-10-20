@@ -1,34 +1,47 @@
-//import { canvas, ctx, entites } from './@module.js'
+import { canvas, ctx } from './@module.js'
 
-const socket = new WebSocket('ws://127.0.0.1:8080/game/gateway', [])
+const scale = 1.5
 
-socket.onopen = (ev) => {
-    console.log('Connected to server')
+const map = await fetch('http://localhost:5500/public/assets/map.json').then((res) => res.json()) as World
 
-    /*socket.send(JSON.stringify({
+canvas.height = map.radius.y * scale
+canvas.width = map.radius.x * scale
 
-    }))*/
+const images = new Map<string, HTMLImageElement>()
+const amount = map.defs.filter((def) => def.visible).length
+
+for (const def of map.defs) {
+    if (def.visible === false) continue
+
+    const image = new Image()
+
+    image.onload = () => images.set(def.id, image)
+    image.src = def.image_src
+
 }
 
-socket.onmessage = (event) => {
-    console.log(event.data)
-
-}
-
-socket.onclose = (ev) => {
-    console.log('Disconnected from server')
-}
-
-socket.onerror = (ev) => {
-    console.log(ev)
-}
-
-/*
 function game() {
+    if (images.size !== amount) return
+    
+    for (const def of map.defs) {
+        if (def.visible === false) continue
+
+        const image = images.get(def.id)!
+
+        for (const position of def.positions) {
+            console.log(position)
+            ctx!.drawImage(image,
+                position.x * scale,
+                position.y * scale,
+                image.width * scale,
+                image.height * scale,
+            )
+        }
+
+    }
 
 }
 
 setInterval(
-    () => requestAnimationFrame(game), 1000 / 60
+    () => requestAnimationFrame(game), 1000 / 1
 )
-*/
