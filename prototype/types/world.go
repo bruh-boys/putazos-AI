@@ -1,6 +1,8 @@
 package types
 
 import (
+	"math/rand"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -22,15 +24,26 @@ type Collision struct {
 type World struct {
 	Soldiers    map[*websocket.Conn]*Soldier
 	Collisions  []Collision
+	SpawnPoints []Map2D
+	Projectiles []Projectile
 	Radius      Map2D
-	Initialized bool
+}
+
+func (w *World) GetRandomSpawnPoint() Map2D {
+	return w.SpawnPoints[rand.Intn(len(w.SpawnPoints))]
 }
 
 func (w *World) Update() {
 	for _, soldier := range w.Soldiers {
-		soldier.Update()
+		if soldier.Update() {
+			soldier.Position = w.GetRandomSpawnPoint()
+			soldier.Health = MaxHealth
+		}
 	}
 
+	for _, projectile := range w.Projectiles {
+		projectile.Update()
+	}
 }
 
 var Factions = map[bool]string{
@@ -62,7 +75,13 @@ func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 	return s
 }
 
-func (w *World) GenerateEntity(pos Map2D, entity interface{}) {
+func (w *World) GenerateEntity(pos Map2D) {
+	w.Projectiles = append(w.Projectiles, Projectile{
+		Position: pos,
+		Velocity: Map2D{X: 0.1, Y: 0},
+		Radius:   Map2D{X: 0.5, Y: 0.5},
+		World:    w,
+	})
 
 }
 

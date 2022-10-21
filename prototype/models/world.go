@@ -1,18 +1,13 @@
 package models
 
 import (
-	"time"
-
 	"github.com/bruh-boys/putazos-ai/prototype/types"
 	"golang.org/x/net/websocket"
 )
 
-var World = &types.World{
-	Soldiers:    map[*websocket.Conn]*types.Soldier{},
-	Collisions:  []types.Collision{},
-	Initialized: false,
-}
+var Game = map[*websocket.Conn]*types.Soldier{}
 
+/*
 func RunWorld() *types.World {
 	World.Initialized = true
 
@@ -22,3 +17,4 @@ func RunWorld() *types.World {
 		World.Update()
 	}
 }
+*/

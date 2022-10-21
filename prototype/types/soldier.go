@@ -27,6 +27,8 @@ type Soldier struct {
 	ReloadingSpeed  float64
 	LastShot        int64
 
+	IsCrouching bool
+
 	WeaponDamage uint8
 	Direction    bool
 
@@ -47,18 +49,24 @@ func (s *Soldier) Shoot() {
 
 	s.LastShot = time.Now().UnixMilli() + RateFire
 
-	s.World.GenerateEntity(Map2D{
-		Y: s.Position.Y + (s.Radius.Y / 2),
-		X: s.Position.X + s.Radius.X,
-	}, "bullet")
-
+	if s.Direction {
+		s.World.GenerateEntity(Map2D{
+			X: s.Position.X + s.PointOfShooting,
+			Y: s.Position.Y,
+		})
+	} else {
+		s.World.GenerateEntity(Map2D{
+			X: s.Position.X - s.PointOfShooting,
+			Y: s.Position.Y,
+		})
+	}
 }
 
 func (s *Soldier) Move() {
-	s.Velocity.Y += Gravity
+	s.Velocity.Y += Gravity / FramesPerSecond
 
-	s.Position.X += (s.Velocity.X / FramesPerSecond)
-	s.Position.Y += (s.Velocity.Y / FramesPerSecond)
+	s.Position.X += s.Velocity.X / FramesPerSecond
+	s.Position.Y += s.Velocity.Y / FramesPerSecond
 
 	if coll, on := s.World.OnCollision(s.Position, s.Radius); on {
 		if s.Velocity.X < 0 {
@@ -89,34 +97,50 @@ func (s *Soldier) Move() {
 
 }
 
-var actions = map[string]func(s *Soldier){
-	"left": func(s *Soldier) {
-		s.Velocity.X = -1
+var actions = map[string]func(s *Soldier, b bool){
+	"left": func(s *Soldier, b bool) {
+		if b && s.IsCrouching {
+			s.Velocity.X = -1
+		} else if b {
+			s.Velocity.X = -2
+		} else {
+			s.Velocity.X = 0
+		}
 	},
-	"right": func(s *Soldier) {
-		s.Velocity.X = 1
+	"right": func(s *Soldier, b bool) {
+		if b && s.IsCrouching {
+			s.Velocity.X = 1
+		} else if b {
+			s.Velocity.X = 2
+		} else {
+			s.Velocity.X = 0
+		}
 	},
-	"up": func(s *Soldier) {
-		s.Velocity.Y = 1.5
+	"up": func(s *Soldier, b bool) {
+		if b && s.Velocity.Y == 0 {
+			s.Velocity.Y = -1
+		}
 	},
-	"down": func(s *Soldier) {
-
+	"down": func(s *Soldier, b bool) {
+		if b && s.Velocity.Y == 0 {
+			s.IsCrouching = true
+		} else {
+			s.IsCrouching = false
+		}
 	},
 }
 
 func (s *Soldier) Update() bool {
-	for action, value := range s.Actions {
-		if value {
-			actions[action](s)
-		}
-	}
-
-	s.Move()
-
 	if s.Health <= 0 && s.Velocity.Y == 0 {
 
 		return true
 	}
+
+	for action, value := range s.Actions {
+		actions[action](s, value)
+	}
+
+	s.Move()
 
 	if s.Health > 0 && s.Actions["shoot"] {
 		s.Shoot()

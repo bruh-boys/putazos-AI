@@ -10,22 +10,22 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-type Response struct {
+type Request struct {
 	Action string `json:"action"`
 	Active bool   `json:"active"`
 }
 
 func ListenMessages(ws *websocket.Conn) {
 	for {
-		var response Response
+		var request Request
 
-		if err := websocket.Message.Receive(ws, &response); err != nil {
+		if err := websocket.Message.Receive(ws, &request); err != nil {
 
 			continue
 		}
 
-		models.World.Soldiers[ws].Action(
-			response.Action, response.Active,
+		models.Game[ws].Action(
+			request.Action, request.Active,
 		)
 
 	}
@@ -34,11 +34,11 @@ func ListenMessages(ws *websocket.Conn) {
 
 func SendMessages(ws *websocket.Conn) {
 	for {
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Second / types.FramesPerSecond)
 
 		var soldiers []types.Soldier
 
-		for _, soldier := range models.World.Soldiers {
+		for _, soldier := range models.Game[ws].World.Soldiers {
 			soldiers = append(soldiers, *soldier)
 		}
 
@@ -51,15 +51,9 @@ func SendMessages(ws *websocket.Conn) {
 func SocketHandler(wr http.ResponseWriter, r *http.Request) {
 	socket := websocket.Server{
 		Handler: func(ws *websocket.Conn) {
-			models.World.NewSoldier(ws)
-
-			if models.World.Initialized == false {
-				go models.RunWorld()
-
-			}
+			models.Game[ws].World.NewSoldier(ws)
 
 			go ListenMessages(ws)
-
 			SendMessages(ws)
 		},
 	}
