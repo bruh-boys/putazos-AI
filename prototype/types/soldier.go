@@ -33,7 +33,6 @@ type Soldier struct {
 	Direction    bool
 
 	World *World
-	Id    int
 }
 
 func (s *Soldier) Action(action string, value bool) {
