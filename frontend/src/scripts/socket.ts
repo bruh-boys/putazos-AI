@@ -1,13 +1,12 @@
-//import { canvas, ctx } from './@module.js'
-
 const socket = new WebSocket('ws://localhost:8080/game/socket/', [])
+export let entities: any
 
 socket.onopen = (ev) => {
     console.log('Connected to server')
 }
 
 socket.onmessage = (event) => {
-    console.log(JSON.parse(JSON.stringify(event.data)))
+    entities = JSON.parse(event.data)
 
 }
 
@@ -21,7 +20,7 @@ socket.onerror = (ev) => {
 
 setTimeout(() => {
     socket.send(JSON.stringify({
-        action: 'down',
+        action: 'left',
         active: true
     }))
 }, 1000)

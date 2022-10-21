@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -61,25 +62,29 @@ func (s *Soldier) Shoot() {
 }
 
 func (s *Soldier) Move() {
-	s.Velocity.Y -= Gravity / FramesPerSecond
-
 	s.Position.X += s.Velocity.X / FramesPerSecond
-	s.Position.Y += s.Velocity.Y / FramesPerSecond
 
 	if coll, on := s.World.OnCollision(s.Position, s.Radius); on {
+		fmt.Println("x", coll.Position, s.Position)
+
 		if s.Velocity.X < 0 {
 			s.Position.X = coll.Position.X + coll.Radius.X + 0.01
 
 		}
 
 		if s.Velocity.X > 0 {
-			s.Position.X = coll.Position.X - coll.Radius.X - 0.01
+			s.Position.X = coll.Position.X - s.Radius.X - 0.01
 
 		}
 
 	}
 
+	s.Velocity.Y += Gravity / FramesPerSecond
+	s.Position.Y += s.Velocity.Y / FramesPerSecond
+
 	if coll, on := s.World.OnCollision(s.Position, s.Radius); on {
+		fmt.Println("y", coll.Position, s.Position)
+
 		if s.Velocity.Y < 0 {
 			s.Velocity.Y = 0
 			s.Position.Y = coll.Position.Y + coll.Radius.Y + 0.01
@@ -87,33 +92,26 @@ func (s *Soldier) Move() {
 
 		if s.Velocity.Y > 0 {
 			s.Velocity.Y = 0
-			s.Position.Y = coll.Position.Y - coll.Radius.Y - 0.01
+			s.Position.Y = coll.Position.Y - s.Radius.Y - 0.01
 
 		}
 
 	}
-
 }
 
 var actions = map[string]func(s *Soldier, b bool){
 	"left": func(s *Soldier, b bool) {
-		if b && s.IsCrouching {
+		if b && s.IsCrouching == false {
 			s.Direction = false
-			s.Velocity.X = -1
-		} else if b {
-			s.Direction = false
-			s.Velocity.X = -2
+			s.Velocity.X = -100
 		} else {
 			s.Velocity.X = 0
 		}
 	},
 	"right": func(s *Soldier, b bool) {
-		if b && s.IsCrouching {
+		if b && s.IsCrouching == false {
 			s.Direction = true
-			s.Velocity.X = 1
-		} else if b {
-			s.Direction = true
-			s.Velocity.X = 2
+			s.Velocity.X = 100
 		} else {
 			s.Velocity.X = 0
 		}

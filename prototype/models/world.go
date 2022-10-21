@@ -35,7 +35,7 @@ func NewGame(ws *websocket.Conn) {
 			for _, position := range def.Positions {
 				Game[ws].Collisions = append(Game[ws].Collisions, types.Collision{
 					Position: position,
-					Radius:   types.Map2D{X: 50, Y: 50},
+					Radius:   types.Map2D{X: 16, Y: 16},
 				})
 			}
 		}

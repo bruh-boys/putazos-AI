@@ -8,7 +8,7 @@ import (
 
 const (
 	FramesPerSecond = 30.0
-	Gravity         = 9
+	Gravity         = 260
 )
 
 type Map2D struct {
@@ -30,7 +30,7 @@ type World struct {
 }
 
 func (w *World) GetRandomSpawnPoint() Map2D {
-	return w.SpawnPoints[rand.Intn(len(w.SpawnPoints)-1)]
+	return w.SpawnPoints[rand.Intn(len(w.SpawnPoints))]
 }
 
 func (w *World) Update() {
@@ -58,7 +58,7 @@ func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 
 		Position: w.GetRandomSpawnPoint(),
 		Velocity: Map2D{X: 0, Y: 0},
-		Radius:   Map2D{X: 0.5, Y: 1},
+		Radius:   Map2D{X: 18, Y: 32},
 
 		Actions: map[string]bool{},
 
@@ -90,10 +90,10 @@ func (w *World) GenerateEntity(pos Map2D) {
 func (w World) OnCollision(pos Map2D, radius Map2D) (Collision, bool) {
 
 	for _, collision := range w.Collisions {
-		if pos.X+radius.X > collision.Position.X &&
-			pos.X < collision.Position.X+collision.Radius.X &&
-			pos.Y+radius.Y > collision.Position.Y &&
-			pos.Y < collision.Position.Y+collision.Radius.Y {
+		if pos.X <= collision.Position.X+collision.Radius.X &&
+			pos.X+radius.X >= collision.Position.X &&
+			pos.Y+radius.Y >= collision.Position.Y &&
+			pos.Y <= collision.Position.Y+collision.Radius.Y {
 
 			return collision, true
 		}

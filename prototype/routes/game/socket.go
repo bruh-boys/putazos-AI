@@ -35,7 +35,7 @@ func ListenMessages(ws *websocket.Conn) {
 
 func SendMessages(ws *websocket.Conn) {
 	for {
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second / types.FramesPerSecond)
 
 		models.Game[ws].Update()
 
