@@ -1,17 +1,13 @@
-//import { canvas, ctx, entites } from './@module.js'
-/*
-const socket = new WebSocket('ws://127.0.0.1:8080/game/gateway', [])
+//import { canvas, ctx } from './@module.js'
+
+const socket = new WebSocket('ws://localhost:8080/game/socket/', [])
 
 socket.onopen = (ev) => {
     console.log('Connected to server')
-
-    /*socket.send(JSON.stringify({
-
-    }))*
 }
 
 socket.onmessage = (event) => {
-    console.log(event.data)
+    console.log(JSON.parse(JSON.stringify(event.data)))
 
 }
 
@@ -21,7 +17,14 @@ socket.onclose = (ev) => {
 
 socket.onerror = (ev) => {
     console.log(ev)
-}*/
+}
+
+setTimeout(() => {
+    socket.send(JSON.stringify({
+        action: 'down',
+        active: true
+    }))
+}, 1000)
 
 /*
 function game() {

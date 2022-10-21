@@ -1,7 +1,7 @@
 package game
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -13,18 +13,19 @@ import (
 type Request struct {
 	Action string `json:"action"`
 	Active bool   `json:"active"`
+	Data   string
 }
 
 func ListenMessages(ws *websocket.Conn) {
 	for {
 		var request Request
 
-		if err := websocket.Message.Receive(ws, &request); err != nil {
+		if err := websocket.JSON.Receive(ws, &request); err != nil {
 
 			continue
 		}
 
-		models.Game[ws].Action(
+		models.Game[ws].Soldiers[ws].Action(
 			request.Action, request.Active,
 		)
 
@@ -34,15 +35,41 @@ func ListenMessages(ws *websocket.Conn) {
 
 func SendMessages(ws *websocket.Conn) {
 	for {
-		time.Sleep(time.Second / types.FramesPerSecond)
+		time.Sleep(time.Second * 2)
 
-		var soldiers []types.Soldier
+		models.Game[ws].Update()
 
-		for _, soldier := range models.Game[ws].World.Soldiers {
-			soldiers = append(soldiers, *soldier)
+		var (
+			soldiers    []types.Soldier    = []types.Soldier{}
+			projectiles []types.Projectile = []types.Projectile{}
+		)
+
+		for _, soldier := range models.Game[ws].Soldiers {
+			soldiers = append(soldiers, types.Soldier{
+				Faction:     soldier.Faction,
+				Health:      soldier.Health,
+				Position:    soldier.Position,
+				IsCrouching: soldier.IsCrouching,
+			})
 		}
 
-		websocket.JSON.Send(ws, fmt.Sprintf("%#v", soldiers))
+		for _, projectile := range models.Game[ws].Projectiles {
+			projectiles = append(projectiles, types.Projectile{
+				Position: projectile.Position,
+			})
+		}
+
+		var response = &struct {
+			Soldiers    []types.Soldier    `json:"soldiers"`
+			Projectiles []types.Projectile `json:"projectiles"`
+		}{
+			Soldiers:    soldiers,
+			Projectiles: projectiles,
+		}
+
+		v, _ := json.Marshal(response)
+
+		websocket.Message.Send(ws, string(v))
 
 	}
 
@@ -51,7 +78,7 @@ func SendMessages(ws *websocket.Conn) {
 func SocketHandler(wr http.ResponseWriter, r *http.Request) {
 	socket := websocket.Server{
 		Handler: func(ws *websocket.Conn) {
-			models.Game[ws].World.NewSoldier(ws)
+			models.NewGame(ws)
 
 			go ListenMessages(ws)
 			SendMessages(ws)

@@ -37,7 +37,6 @@ type Soldier struct {
 
 func (s *Soldier) Action(action string, value bool) {
 	s.Actions[action] = value
-
 }
 
 func (s *Soldier) Shoot() {
@@ -62,7 +61,7 @@ func (s *Soldier) Shoot() {
 }
 
 func (s *Soldier) Move() {
-	s.Velocity.Y += Gravity / FramesPerSecond
+	s.Velocity.Y -= Gravity / FramesPerSecond
 
 	s.Position.X += s.Velocity.X / FramesPerSecond
 	s.Position.Y += s.Velocity.Y / FramesPerSecond
@@ -99,8 +98,10 @@ func (s *Soldier) Move() {
 var actions = map[string]func(s *Soldier, b bool){
 	"left": func(s *Soldier, b bool) {
 		if b && s.IsCrouching {
+			s.Direction = false
 			s.Velocity.X = -1
 		} else if b {
+			s.Direction = false
 			s.Velocity.X = -2
 		} else {
 			s.Velocity.X = 0
@@ -108,8 +109,10 @@ var actions = map[string]func(s *Soldier, b bool){
 	},
 	"right": func(s *Soldier, b bool) {
 		if b && s.IsCrouching {
+			s.Direction = true
 			s.Velocity.X = 1
 		} else if b {
+			s.Direction = true
 			s.Velocity.X = 2
 		} else {
 			s.Velocity.X = 0
@@ -117,11 +120,11 @@ var actions = map[string]func(s *Soldier, b bool){
 	},
 	"up": func(s *Soldier, b bool) {
 		if b && s.Velocity.Y == 0 {
-			s.Velocity.Y = -1
+			s.Velocity.Y = 3
 		}
 	},
 	"down": func(s *Soldier, b bool) {
-		if b && s.Velocity.Y == 0 {
+		if b && s.Velocity.Y > -1 && s.Velocity.Y < 1 {
 			s.IsCrouching = true
 		} else {
 			s.IsCrouching = false

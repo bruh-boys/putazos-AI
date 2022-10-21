@@ -8,7 +8,7 @@ import (
 
 const (
 	FramesPerSecond = 30.0
-	Gravity         = 1
+	Gravity         = 9
 )
 
 type Map2D struct {
@@ -25,12 +25,12 @@ type World struct {
 	Soldiers    map[*websocket.Conn]*Soldier
 	Collisions  []Collision
 	SpawnPoints []Map2D
-	Projectiles []Projectile
+	Projectiles []*Projectile
 	Radius      Map2D
 }
 
 func (w *World) GetRandomSpawnPoint() Map2D {
-	return w.SpawnPoints[rand.Intn(len(w.SpawnPoints))]
+	return w.SpawnPoints[rand.Intn(len(w.SpawnPoints)-1)]
 }
 
 func (w *World) Update() {
@@ -56,9 +56,11 @@ func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 		Faction: Factions[len(w.Soldiers)%2 == 0],
 		Health:  MaxHealth,
 
-		Position: Map2D{X: 0, Y: 0},
+		Position: w.GetRandomSpawnPoint(),
 		Velocity: Map2D{X: 0, Y: 0},
 		Radius:   Map2D{X: 0.5, Y: 1},
+
+		Actions: map[string]bool{},
 
 		PointOfShooting: 0.6,
 		ReloadingSpeed:  ReloadingSpeed,
@@ -66,8 +68,8 @@ func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 
 		WeaponDamage: MaxDamage,
 		Direction:    true,
-
-		World: w,
+		IsCrouching:  false,
+		World:        w,
 	}
 
 	w.Soldiers[ws] = s
@@ -76,7 +78,7 @@ func (w *World) NewSoldier(ws *websocket.Conn) *Soldier {
 }
 
 func (w *World) GenerateEntity(pos Map2D) {
-	w.Projectiles = append(w.Projectiles, Projectile{
+	w.Projectiles = append(w.Projectiles, &Projectile{
 		Position: pos,
 		Velocity: Map2D{X: 0.1, Y: 0},
 		Radius:   Map2D{X: 0.5, Y: 0.5},
