@@ -16,8 +16,11 @@ function update <T extends ISoldier> (
 
 function soldier (
     this: Entity<ISoldier>, soldier: EntityModel<SoldierModel>
-) { // @ts-ignore
-    this = new Entity(soldier)
+) {
+    for (const [key, value] of Object.entries(new Entity(soldier))) {
+        // @ts-ignore
+        this[key] = value
+    }
 
     this.sprite = structuredClone(
         sprites.get(`idle-${this.faction}-soldier`)!

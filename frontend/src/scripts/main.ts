@@ -17,9 +17,9 @@ socket.onmessage = (event) => {
 
             break
         case 'join':
-            overwrite_map((data as SocketValue<'join'>))
+            overwrite_map(JSON.parse(data as any) as SocketValue<'join'>)
 
-            init()
+            setTimeout(() => init(), 2000)
     }
 }
 

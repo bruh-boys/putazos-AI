@@ -61,6 +61,8 @@ function overwrite_entities(ss: SocketValue<'data'>) {
 }
 
 function overwrite_map(w: World) {
+    canvas.height = w.radius.y
+    canvas.width = w.radius.x
     world = w
 }
 
@@ -69,52 +71,52 @@ async function init() {
         new Sprite(`idle-${color}-soldier`, {
             framesHold: 10,
             framesMax: 5,
-            source: `/assets/images/soldiers/${color}/idle.png`
+            source: `/public/assets/images/soldiers/${color}/idle.png`
         })
 
         new Sprite(`move-${color}-soldier`, {
             framesHold: 10,
             framesMax: 6,
-            source: `/assets/images/soldiers/${color}/move.png`
+            source: `/public/assets/images/soldiers/${color}/move.png`
         })
 
         new Sprite(`jump-${color}-soldier`, {
             framesHold: 10,
             framesMax: 2,
-            source: `/assets/images/soldiers/${color}/jump.png`
+            source: `/public/assets/images/soldiers/${color}/jump.png`
         })
 
         new Sprite(`death-${color}-soldier`, {
             animationType: 'once',
             framesHold: 10,
             framesMax: 7,
-            source: `/assets/images/soldiers/${color}/death.png`
+            source: `/public/assets/images/soldiers/${color}/death.png`
         })
 
         new Sprite(`crouch-${color}-soldier`, {
             framesHold: 10,
             framesMax: 3,
-            source: `/assets/images/soldiers/${color}/crouch.png`
+            source: `/public/assets/images/soldiers/${color}/crouch.png`
         })
 
     }
 
     new Sprite(`small-plataform`, {
         animationType: 'once',
-        source: `/assets/images/plataforms/small-plataform.png`
+        source: `/public/assets/images/plataforms/small-plataform.png`
     })
 
     new Sprite(`plataform`, {
         animationType: 'once',
-        source: `/assets/images/plataforms/plataform.png`
+        source: `/public/assets/images/plataforms/plataform.png`
     })
 
     requestAnimationFrame(game)
 }
 
-function game() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+async function game() {
+    //ctx!.fillStyle = 'rgba(255, 255, 255, 0.3)'
+    //ctx!.fillRect(0, 0, canvas.width, canvas.height)
 
     for (const projectile of Object.values(entities.projectiles)) {
         generate_projectile_trail(ctx, projectile.start, projectile.position)
@@ -128,10 +130,15 @@ function game() {
         if (definition.visible === false) continue
 
         for (const position of definition.positions) {
-            sprites.get(definition.id)?.update(ctx, position)
+            const sprite = sprites.get(definition.id)!
+
+            sprite.update(ctx, position)
+
         }
+
     }
 
+    await new Promise(resolve => setTimeout(resolve, 1000 / framesPerSecond))
     requestAnimationFrame(game)
 }
 

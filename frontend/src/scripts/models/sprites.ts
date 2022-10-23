@@ -4,7 +4,8 @@ function draw(
     this: Sprite, ctx: CanvasRenderingContext2D,
     pos: Position
 ) {
-    ctx.drawImage(
+    console.log("a")
+    /*ctx.drawImage(
         this.image,
         this.framesCurrent * (this.image.width / this.framesMax),
         0,
@@ -13,6 +14,15 @@ function draw(
         pos.x,
         pos.y,
         (this.image.width / this.framesMax) * this.scale,
+        this.image.height * this.scale,
+    )*/
+
+    // Stupid canvas, why you don't work?
+    ctx.drawImage(
+        this.image,
+        pos.x,
+        pos.y,
+        this.image.width * this.scale,
         this.image.height * this.scale,
     )
 }
@@ -39,8 +49,8 @@ function sprite(this: Sprite, id: string, sprite: SpriteModel) {
     this.framesMax === undefined &&
         (this.framesMax = 1)
 
-    this.image.src = this.source;
     this.image = new Image();
+    this.image.src = this.source;
 
     this.framesCurrent = 0;
     this.framesElapsed = 0;
