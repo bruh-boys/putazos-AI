@@ -1,6 +1,10 @@
 package models
 
-import "github.com/bruh-boys/putazos-ai/prototype/types"
+import (
+	"math/rand"
+
+	"github.com/bruh-boys/putazos-ai/prototype/types"
+)
 
 func NewSoldier(faction string, position types.Map2D) *types.Soldier {
 	return &types.Soldier{
@@ -19,6 +23,7 @@ func NewSoldier(faction string, position types.Map2D) *types.Soldier {
 
 		WeaponDamage: types.MaxDamage,
 		Direction:    true,
+		Id:           string(rune(rand.Intn(100000))),
 	}
 
 }

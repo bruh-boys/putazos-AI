@@ -15,6 +15,8 @@ const (
 )
 
 type Soldier struct {
+	Id string
+
 	Faction string `json:"faction"`
 	Health  uint8  `json:"health"`
 
@@ -101,7 +103,7 @@ func (s *Soldier) Move() {
 
 var actions = map[string]func(s *Soldier, b bool){
 	"left": func(s *Soldier, b bool) {
-		if b && s.IsCrouching == false {
+		if b && !s.IsCrouching {
 			s.Direction = false
 			s.Velocity.X = -100
 		} else {
@@ -109,7 +111,7 @@ var actions = map[string]func(s *Soldier, b bool){
 		}
 	},
 	"right": func(s *Soldier, b bool) {
-		if b && s.IsCrouching == false {
+		if b && !s.IsCrouching {
 			s.Direction = true
 			s.Velocity.X = 100
 		} else {

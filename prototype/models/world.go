@@ -17,7 +17,7 @@ type Map2 struct {
 	} `json:"defs"`
 }
 
-func NewGame(ws *websocket.Conn) {
+func NewGame(ws *websocket.Conn) []byte {
 	var m Map2
 
 	data, _ := os.ReadFile("assets/map.json")
@@ -42,6 +42,8 @@ func NewGame(ws *websocket.Conn) {
 	}
 
 	Game[ws].NewSoldier(ws)
+
+	return data
 }
 
 /*

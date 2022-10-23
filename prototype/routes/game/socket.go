@@ -1,7 +1,6 @@
 package game
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -10,10 +9,41 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+type GameDataProjectile struct {
+	Position types.Map2D `json:"position"`
+	Start    types.Map2D `json:"start"`
+}
+
+type GameDataSoldier struct {
+	Direction bool        `json:"direction"`
+	Faction   string      `json:"faction"`
+	Health    uint8       `json:"health"`
+	Position  types.Map2D `json:"position"`
+	Actions   []string    `json:"actions"`
+	Id        string      `json:"id"`
+}
+
+type GameData struct {
+	Projectiles []GameDataProjectile `json:"projectiles"`
+	Soldiers    []GameDataSoldier    `json:"soldiers"`
+}
+
+type GameResponse struct {
+	Type string   `json:"type"`
+	Data GameData `json:"data"`
+}
+
+type JoinResponse struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
 type Request struct {
-	Action string `json:"action"`
-	Active bool   `json:"active"`
-	Data   string
+	Type string `json:"type"`
+	Data struct {
+		State bool   `json:"state"`
+		Key   string `json:"key"`
+	} `json:"data"`
 }
 
 func ListenMessages(ws *websocket.Conn) {
@@ -25,9 +55,12 @@ func ListenMessages(ws *websocket.Conn) {
 			continue
 		}
 
-		models.Game[ws].Soldiers[ws].Action(
-			request.Action, request.Active,
-		)
+		switch request.Type {
+		case "action":
+			models.Game[ws].Soldiers[ws].Action(
+				request.Data.Key, request.Data.State,
+			)
+		}
 
 	}
 
@@ -36,41 +69,41 @@ func ListenMessages(ws *websocket.Conn) {
 func SendMessages(ws *websocket.Conn) {
 	for {
 		time.Sleep(time.Second / types.FramesPerSecond)
-
 		models.Game[ws].Update()
 
-		var (
-			soldiers    []types.Soldier    = []types.Soldier{}
-			projectiles []types.Projectile = []types.Projectile{}
-		)
-
-		for _, soldier := range models.Game[ws].Soldiers {
-			soldiers = append(soldiers, types.Soldier{
-				Faction:     soldier.Faction,
-				Health:      soldier.Health,
-				Position:    soldier.Position,
-				IsCrouching: soldier.IsCrouching,
-			})
+		var response GameResponse = GameResponse{
+			Type: "update",
+			Data: GameData{},
 		}
 
 		for _, projectile := range models.Game[ws].Projectiles {
-			projectiles = append(projectiles, types.Projectile{
+			response.Data.Projectiles = append(response.Data.Projectiles, GameDataProjectile{
 				Position: projectile.Position,
+				Start:    projectile.Start,
 			})
 		}
 
-		var response = &struct {
-			Soldiers    []types.Soldier    `json:"soldiers"`
-			Projectiles []types.Projectile `json:"projectiles"`
-		}{
-			Soldiers:    soldiers,
-			Projectiles: projectiles,
+		for _, soldier := range models.Game[ws].Soldiers {
+			var actions []string
+
+			for action, state := range soldier.Actions {
+				if state {
+					actions = append(actions, action)
+				}
+			}
+
+			response.Data.Soldiers = append(response.Data.Soldiers, GameDataSoldier{
+				Faction:   soldier.Faction,
+				Health:    soldier.Health,
+				Position:  soldier.Position,
+				Actions:   actions,
+				Id:        soldier.Id,
+				Direction: soldier.Direction,
+			})
+
 		}
 
-		v, _ := json.Marshal(response)
-
-		websocket.Message.Send(ws, string(v))
-
+		websocket.JSON.Send(ws, response)
 	}
 
 }
@@ -78,9 +111,15 @@ func SendMessages(ws *websocket.Conn) {
 func SocketHandler(wr http.ResponseWriter, r *http.Request) {
 	socket := websocket.Server{
 		Handler: func(ws *websocket.Conn) {
-			models.NewGame(ws)
+			data := models.NewGame(ws)
 
 			go ListenMessages(ws)
+
+			websocket.JSON.Send(ws, JoinResponse{
+				Type: "join",
+				Data: string(data),
+			})
+
 			SendMessages(ws)
 		},
 	}

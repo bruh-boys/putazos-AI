@@ -1,6 +1,7 @@
 package types
 
 type Projectile struct {
+	Start    Map2D
 	Position Map2D
 	Radius   Map2D
 	Velocity Map2D
