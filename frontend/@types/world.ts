@@ -1,5 +1,5 @@
 interface Position {
-    x: number, y: number, z: number
+    x: number, y: number
 }
 
 interface Def {
