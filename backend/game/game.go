@@ -21,24 +21,23 @@ func NewGame(name string) (g Game) {
 }
 
 // Maybe I should do this in at the same time idk
-func (g Game) Action(id int, action string, soldiers []Soldier) {
+func (g Game) Action(id int, action string, soldiers map[int]*Soldier) {
 	soldiers[id].Action(action, g.World, soldiers)
 
 }
-func (g Game) Spawn(soldier Soldier) {
+func (g Game) Spawn(soldier *Soldier) {
 	soldier.Life = MaxHealth
 	rand.Shuffle(len(g.SpawnPoints), func(i, j int) { g.SpawnPoints[i], g.SpawnPoints[j] = g.SpawnPoints[j], g.SpawnPoints[i] })
 	soldier.X = g.SpawnPoints[1].X
 	soldier.Y = g.SpawnPoints[1].Y
 
 }
-func (g Game) DoSomethingPerFrame(soldiers []Soldier) {
+func (g Game) DoSomethingPerFrame(soldier *Soldier) {
 
-	for _, s := range soldiers {
-		s.Moving(g.World)
-		if s.Death {
-			g.Spawn(s)
-		}
+	soldier.Moving(g.World)
+	if soldier.Death {
+		g.Spawn(soldier)
 	}
+
 	time.Sleep(time.Second / FramesPerSecond)
 }

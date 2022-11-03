@@ -4,7 +4,9 @@ import { generate_projectile_trail } from './models/projectile.js'
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-
+console.log(canvas.width)
+ctx.fillStyle="black"
+ctx.fillRect(10,10,10,10)
 const framesPerSecond = 30
 
 let world: World | undefined
@@ -110,13 +112,14 @@ async function init() {
         animationType: 'once',
         source: `/public/assets/images/plataforms/plataform.png`
     })
-
-    requestAnimationFrame(game)
+    
+        requestAnimationFrame( game)
+        
+  
 }
 
 async function game() {
     //ctx!.fillStyle = 'rgba(255, 255, 255, 0.3)'
-    //ctx!.fillRect(0, 0, canvas.width, canvas.height)
 
     for (const projectile of Object.values(entities.projectiles)) {
         generate_projectile_trail(ctx, projectile.start, projectile.position)
@@ -131,15 +134,18 @@ async function game() {
 
         for (const position of definition.positions) {
             const sprite = sprites.get(definition.id)!
-
             sprite.update(ctx, position)
 
         }
 
     }
+    setTimeout(() => {
+        requestAnimationFrame( game)
+        
+    }, (1000/framesPerSecond));
 
-    await new Promise(resolve => setTimeout(resolve, 1000 / framesPerSecond))
-    requestAnimationFrame(game)
+
+
 }
 
 export {

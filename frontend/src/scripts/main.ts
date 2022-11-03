@@ -15,6 +15,7 @@ socket.onmessage = (event) => {
         case 'data':
             overwrite_entities((data as SocketValue<'data'>))
 
+
             break
         case 'join':
             overwrite_map(JSON.parse(data as any) as SocketValue<'join'>)

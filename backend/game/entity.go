@@ -26,8 +26,8 @@ type Soldier struct {
 	ReloadingSpeed  float64
 }
 
-func NewSoldier(faction string, width, height, pointOfShooting, x, y float64, direction bool) Soldier {
-	var s Soldier
+func NewSoldier(faction string, width, height, pointOfShooting, x, y float64, direction bool) *Soldier {
+	var s *Soldier
 	s.Ammo = MaxAmmo
 	s.RateFire = 5
 	s.Life = MaxHealth
@@ -43,8 +43,8 @@ func NewSoldier(faction string, width, height, pointOfShooting, x, y float64, di
 
 }
 
-var actions = map[string]func(s *Soldier, ss []Soldier, w World){
-	"move-right": func(s *Soldier, ss []Soldier, w World) {
+var actions = map[string]func(s *Soldier, ss map[int]*Soldier, w World){
+	"move-right": func(s *Soldier, ss map[int]*Soldier, w World) {
 		s.Direction = false
 
 		if s.X > 0 && w.SidePlatforms(*s) < s.X-MovePerFrame {
@@ -53,7 +53,7 @@ var actions = map[string]func(s *Soldier, ss []Soldier, w World){
 		}
 
 	},
-	"move-left": func(s *Soldier, ss []Soldier, w World) {
+	"move-left": func(s *Soldier, ss map[int]*Soldier, w World) {
 		s.Direction = true
 
 		if s.X > w.Width && w.SidePlatforms(*s) > s.X+MovePerFrame {
@@ -62,24 +62,24 @@ var actions = map[string]func(s *Soldier, ss []Soldier, w World){
 		}
 
 	},
-	"attack": func(s *Soldier, ss []Soldier, w World) {
+	"attack": func(s *Soldier, ss map[int]*Soldier, w World) {
 		if s.WaitUntilFire < 1 && s.Ammo > 0 {
 			s.WaitUntilFire += s.RateFire / FramesPerSecond
 			s.Shooting(ss)
 		}
 
 	},
-	"reload": func(s *Soldier, ss []Soldier, w World) {
+	"reload": func(s *Soldier, ss map[int]*Soldier, w World) {
 		if s.Ammo < MaxAmmo {
 			s.WaitUntilFire += s.RateFire / FramesPerSecond // If he is reloading he cant shoot
 			s.Ammo = MaxAmmo
 		}
 
 	},
-	"idle": func(s *Soldier, ss []Soldier, w World) {
+	"idle": func(s *Soldier, ss map[int]*Soldier, w World) {
 
 	},
-	"jump": func(s *Soldier, ss []Soldier, w World) {
+	"jump": func(s *Soldier, ss map[int]*Soldier, w World) {
 		if s.VelY == 0 {
 			s.VelY = 15
 		}
@@ -87,7 +87,7 @@ var actions = map[string]func(s *Soldier, ss []Soldier, w World){
 	},
 }
 
-func (s *Soldier) Action(action string, world World, soldiers []Soldier) {
+func (s *Soldier) Action(action string, world World, soldiers map[int]*Soldier) {
 	if act, ok := actions[action]; ok {
 		act(s, soldiers, world)
 
@@ -131,12 +131,12 @@ func (s *Soldier) Moving(world World) {
 	s.X -= s.X * math.Floor(s.X/world.Width)
 
 }
-func (s *Soldier) Shooting(soldiers []Soldier) {
+func (s *Soldier) Shooting(soldiers map[int]*Soldier) {
 	id := 0
 	closeDis := 100000.0
-	for i := 0; i < len(soldiers); i++ {
+	for i := range soldiers {
 		dis := 1000000.0
-		if s == &soldiers[i] {
+		if s.Faction != soldiers[i].Faction {
 			continue
 		}
 		if s.Direction { //left
@@ -152,7 +152,7 @@ func (s *Soldier) Shooting(soldiers []Soldier) {
 			dis = soldiers[i].X - s.X
 		}
 
-		if s.Y+(s.Height)/2 > soldiers[i].Y && s.Y+s.PointOfShooting < soldiers[i].Y+soldiers[i].Height {
+		if s.Y+s.PointOfShooting > soldiers[i].Y && s.Y+s.PointOfShooting < soldiers[i].Y+soldiers[i].Height {
 			closeDis = dis
 			id = i
 

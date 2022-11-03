@@ -4,7 +4,6 @@ function draw(
     this: Sprite, ctx: CanvasRenderingContext2D,
     pos: Position
 ) {
-    console.log("a")
     /*ctx.drawImage(
         this.image,
         this.framesCurrent * (this.image.width / this.framesMax),
@@ -17,13 +16,12 @@ function draw(
         this.image.height * this.scale,
     )*/
 
-    // Stupid canvas, why you don't work?
     ctx.drawImage(
         this.image,
         pos.x,
         pos.y,
         this.image.width * this.scale,
-        this.image.height * this.scale,
+        this.image.height *this.scale,
     )
 }
 
@@ -32,15 +30,17 @@ function update(
     pos: Position
 ) {
     this.draw(ctx, pos)
-
-    if (this.framesCurrent < this.framesMax - 1) this.framesCurrent++
+       if (this.framesCurrent < this.framesMax - 1) this.framesCurrent++
     else this.framesCurrent = 0;
+
+
 }
 
 function sprite(this: Sprite, id: string, sprite: SpriteModel) {
     for (const key in sprite) { // @ts-ignore
         this[key as keyof Sprite] = sprite[key as keyof SpriteModel];
     }
+    this.scale=1
 
     this.framesHold = this.framesHold
         ? this.framesHold
