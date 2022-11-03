@@ -13,8 +13,7 @@ socket.onmessage = (event) => {
 
     switch (type) {
         case 'data':
-        console.log(data)    
-        overwrite_entities((data as SocketValue<'data'>))
+            overwrite_entities((data as SocketValue<'data'>))
 
 
             break

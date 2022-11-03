@@ -100,7 +100,6 @@ func SendMessages(ws *websocket.Conn) {
 				Id:        soldier.Id,
 				Direction: soldier.Direction,
 			})
-			time.Sleep(time.Second / types.FramesPerSecond)
 
 		}
 
