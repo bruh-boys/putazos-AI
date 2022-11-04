@@ -1,9 +1,9 @@
 interface SpriteModel {
     animationType?: 'once' | 'loop';
-    framesHold?: number,
-    framesMax?: number,
-    scale?: number,
-    source: string
+    holdFrames?: number,
+    maxFrames?: number,
+    source: string,
+    id: string,
 }
 
 interface Sprite extends SpriteModel {

@@ -1,11 +1,11 @@
-type SocketValue <T extends 'join' | 'data'> =
+type SocketValue <T extends 'join' | 'update'> =
     T extends 'join' ? World : {
         projectiles: EntityModel<ProjectileModel>[],
         soldiers: EntityModel<SoldierModel>[]
     }
 
 interface SocketResponse {
-    type: 'join' | 'data',
+    type: 'join' | 'update',
     data: SocketValue<SocketResponse['type']>
 }
 

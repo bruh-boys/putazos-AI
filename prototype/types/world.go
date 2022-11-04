@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	FramesPerSecond = 30.0
+	FramesPerSecond = 10.0
 	Gravity         = 260
 )
 
