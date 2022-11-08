@@ -102,28 +102,28 @@ func (s *Soldier) Move() {
 }
 
 var actions = map[string]func(s *Soldier, b bool){
-	"left": func(s *Soldier, b bool) {
+	"ArrowLeft": func(s *Soldier, b bool) {
 		if b && !s.IsCrouching {
 			s.Direction = false
 			s.Velocity.X = -100
-		} else {
+		} else if !s.Direction {
 			s.Velocity.X = 0
 		}
 	},
-	"right": func(s *Soldier, b bool) {
+	"ArrowRight": func(s *Soldier, b bool) {
 		if b && !s.IsCrouching {
 			s.Direction = true
 			s.Velocity.X = 100
-		} else {
+		} else if s.Direction {
 			s.Velocity.X = 0
 		}
 	},
-	"up": func(s *Soldier, b bool) {
+	"ArrowUp": func(s *Soldier, b bool) {
 		if b && s.Velocity.Y == 0 {
-			s.Velocity.Y = 3
+			s.Velocity.Y = -200
 		}
 	},
-	"down": func(s *Soldier, b bool) {
+	"ArrowDown": func(s *Soldier, b bool) {
 		if b && s.Velocity.Y > -1 && s.Velocity.Y < 1 {
 			s.IsCrouching = true
 		} else {
@@ -139,7 +139,9 @@ func (s *Soldier) Update() bool {
 	}
 
 	for action, value := range s.Actions {
-		actions[action](s, value)
+		if fn, ok := actions[action]; ok {
+			fn(s, value)
+		}
 	}
 
 	s.Move()

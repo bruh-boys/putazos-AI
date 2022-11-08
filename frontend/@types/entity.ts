@@ -14,10 +14,11 @@ type Entity<T extends object> = EntityModel<T> & {
 //
 
 interface SoldierModel {
-    direction: boolean
-    health: number,
-    actions: string[],
-    faction: string
+    health?: number,
+    direction?: boolean
+    position?: Position
+    actions?: string[]
+    faction?: 'red' | 'blue'
 }
 
 interface ISoldier extends SoldierModel {

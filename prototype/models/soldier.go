@@ -13,7 +13,7 @@ func NewSoldier(faction string, position types.Map2D) *types.Soldier {
 
 		Position: position,
 		Velocity: types.Map2D{},
-		Radius:   types.Map2D{X: 0.5, Y: 1},
+		Radius:   types.Map2D{X: 16, Y: 38},
 
 		PointOfShooting: 0.6,
 		ReloadingSpeed:  types.ReloadingSpeed,

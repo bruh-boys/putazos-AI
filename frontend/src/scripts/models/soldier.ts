@@ -1,36 +1,51 @@
-import { Entity } from './entity.js'
-import { sprites } from './sprites.js'
+import { Sprite } from "./sprite.js";
+import { Entity } from "./entity.js";
 
-const soldier_priorities: { [key: string]: number } = {
-    'move': 1,
-    'crouch': 2,
-    'jump': 3,
-    'death': 4
-}
+class Soldier extends Entity {
+    public readonly id: string;
 
-function update <T extends ISoldier> (
-    this: Entity<T>, ctx: CanvasRenderingContext2D
-) {
-    this.sprite.update(ctx, this.position)
-}
+    public health: number = 100;
+    public direction: boolean = false;
+    public actions: string[] = [];
+    public faction: 'red' | 'blue';
+    
+    public sprite: Sprite;
 
-function soldier (
-    this: Entity<ISoldier>, soldier: EntityModel<SoldierModel>
-) {
-    for (const [key, value] of Object.entries(new Entity(soldier))) {
-        // @ts-ignore
-        this[key] = value
+    constructor(id: string, faction: Soldier['faction'], direction: boolean, pos: Position, actions?: string[]) {
+        super(pos);
+
+        this.actions = actions || [];
+
+        this.direction = direction;
+        this.faction = faction;
+
+        this.id = id;
+
+        this.sprites.set('idle', new Sprite({
+            source: `./assets/images/soldiers/${this.faction}/idle.png`,
+            animationType: 'loop',
+            holdFrames: 3,
+            maxFrames: 5,
+            id: 'idle',
+        }));
+
+        const sprite = this.sprites.get('idle')!;
+
+        this.sprite = Object.assign(
+            Object.create(Object.getPrototypeOf(sprite)), sprite
+        )
     }
 
-    this.sprite = structuredClone(
-        sprites.get(`idle-${this.faction}-soldier`)!
-    )
+    update(soldier: SoldierModel): void {
+        for (const [key, value] of Object.entries(soldier)) {
+            this[key as 'direction'] = value;
+        }
+    }
 
-    this.update = update.bind(this)
+    draw(ctx: CanvasRenderingContext2D, scale: number) {
+        this.sprite.draw(ctx, scale, this.position, !this.direction);
+    }
+
 }
 
-const Soldier = soldier as unknown as {
-    new (soldier: EntityModel<SoldierModel>): Entity<ISoldier>
-}
-
-export { Soldier, soldier_priorities }
+export { Soldier }
