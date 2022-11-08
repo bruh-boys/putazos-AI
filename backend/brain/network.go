@@ -10,16 +10,22 @@ import (
 type NN struct {
 	Weights         [][][]float32 `json:"weights"          `
 	Bias            [][]float32   `json:"bias"             `
+	Rnn             []bool        `json:"is-a-rnn"`
 	ActivationFuncs []string      `json:"activation-funcs" `
 	Comment         string        `json:"comment" `
 }
 
-func NewNeuralNetwork(neuronsPerLayer []int, activationFuncs []string, comment string) NN {
+func NewNeuralNetwork(neuronsPerLayer []int, activationFuncs []string, comment string, rnn []bool) NN {
 	rand.Seed(time.Now().Unix())
 	if len(activationFuncs)+1 < len(neuronsPerLayer) {
 		panic("the activation funcs are different")
 
 	}
+	if len(rnn) != len(neuronsPerLayer)-1 {
+		panic("this is not going to work ")
+
+	}
+
 	// the output doesnt have a weight
 	// the same for the bias
 	weights := make([][][]float32, len(neuronsPerLayer)-1)
@@ -42,42 +48,43 @@ func NewNeuralNetwork(neuronsPerLayer []int, activationFuncs []string, comment s
 		}
 	}
 
-	return NN{Weights: weights, Bias: bias, ActivationFuncs: activationFuncs, Comment: comment}
+	return NN{Weights: weights, Bias: bias, ActivationFuncs: activationFuncs, Comment: comment, Rnn: rnn}
 }
 
 // this is like the predict function
 // but it returns you the layers
 
-func (net NN) FeedFoward(input []float32, feedBack [][]float32) (layers [][]float32, feed [][]float32) {
+func (net NN) FeedFoward(input []float32, feedBack [][]float32) (layers [][]float32, mem [][]float32) {
 	layers = make([][]float32, len(net.Bias)+1)
-	feed = make([][]float32, len(net.Bias)-1)
+	mem = make([][]float32, len(net.Bias)-1)
 	layers[0] = make([]float32, len(input))
 	copy(layers[0], input)
 
 	for l := 0; l < len(layers)-1; l++ {
 		layers[l+1] = make([]float32, len(net.Bias[l]))
+		if net.Rnn[l] {
 
+			mem[l] = make([]float32, len(layers[l]))
+
+		}
 		// layer*weight
 		for n := 0; n < len(layers[l]); n++ {
+			var q float32
+			if net.Rnn[l] && feedBack != nil {
+				q = (feedBack[l][n])
+				mem[l][n] = relu(layers[l][n])
+
+			}
 
 			for i, w := range net.Weights[l][n] {
-				var q float32
-				if l != len(net.Bias)-1 && feedBack != nil && l != 0 {
-					q = (feedBack[l-1][n])
 
-				}
 				layers[l+1][i] += w * (layers[l][n] + q)
 
 			}
 
 		}
 		//layer(l+1)=f(bias)
-		if l != len(net.Bias)-1 && l != 0 {
 
-			feed[l-1] = make([]float32, len(layers[l]))
-			copy(feed[l-1], layers[l])
-
-		}
 		for i := range layers[l+1] {
 
 			layers[l+1][i] = mathFuncs[net.ActivationFuncs[l]]["activate"](layers[l+1][i] + net.Bias[l][i])
@@ -119,8 +126,9 @@ func (net *NN) BackPropagation(layers [][]float32, memory [][]float32, expected 
 		for n := 0; n < len(wd[l]); n++ {
 			wd[l][n] = make([]float32, len(net.Weights[l][n]))
 			var q float32
-			if l != len(net.Bias)-1 && memory != nil && l != 0 {
-				q = (memory[l-1][n])
+			if net.Rnn[l] && memory != nil {
+				q = (memory[l][n])
+				memory[l][n] = relu(layers[l][n])
 
 			}
 			for i := range net.Weights[l][n] {

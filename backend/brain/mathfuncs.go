@@ -2,6 +2,15 @@ package brain
 
 import "math"
 
+func Argmax(output []float32) (b int) {
+	for i := 0; i < len(output); i++ {
+		if output[i] > output[b] {
+			b = i
+		}
+	}
+	return
+}
+
 func relu(x float32) float32 {
 	return float32(math.Max(0, float64(x)))
 
