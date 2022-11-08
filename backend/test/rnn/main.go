@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/bruh-boys/putazos-ai/backend/brain"
 )
@@ -41,12 +39,11 @@ var la = map[byte]int{
 	' ': 26,
 	',': 27,
 }
-var expect = []string{"clown timeline but never gona give you up", "just think in me", "never think in what is real"}
+var expect = []string{"bruh boys is the best", "i will never gona give you up"}
 
 func Train(nn brain.NN) {
-	for k := 0; k < 10000; k++ {
+	for k := 0; k < 1000; k++ {
 		bd, wd := [][][]float32{}, [][][][]float32{}
-
 		for _, expected := range expect {
 			input := make([]float32, len(letters))
 			var b [][]float32 = nil
@@ -62,14 +59,15 @@ func Train(nn brain.NN) {
 				w, bi := nn.BackPropagation(layers, b, exp)
 				bd = append(bd, bi)
 				wd = append(wd, w)
+				//	input = layers[len(layers)-1]
 				input = make([]float32, len(layers[len(layers)-1]))
 				input[brain.Argmax(layers[len(layers)-1])] = 1
-
 				b = bef
 
 			}
 
 			if k%100 == 0 {
+
 				var b [][]float32 = nil
 
 				input := make([]float32, len(letters))
@@ -78,40 +76,44 @@ func Train(nn brain.NN) {
 				fmt.Print(string(expected[0]))
 				for i := 1; i < len(expected); i++ {
 					out, bef := nn.Predict(input, b)
+					//input = out
 					input = make([]float32, len(out))
+
 					input[brain.Argmax(out)] = 1
 
 					fmt.Print(letters[brain.Argmax(out)])
 					b = bef
 				}
-				fmt.Println("")
+				fmt.Println("\n--------------------")
 			}
 		}
 		for i := 0; i < len(bd); i++ {
-			nn.UpdateWeightAndBias(float32(len(bd)), 0.02, wd[i], bd[i])
+			nn.UpdateWeightAndBias(float32(len(bd)), 0.001, wd[i], bd[i])
 		}
 
 	}
 	nn.SaveModel("net-example.json")
 }
 func main() {
+	//nn := brain.NewNeuralNetwork([]int{len(letters), 32, 32, 32, 32, len(letters)}, []string{"tanh", "tanh", "tanh", "tanh", "tanh"}, "example", []bool{true, true, true, true, false}) // brain.OpenModel("net-example.json")
 	nn := brain.OpenModel("net-example.json")
+	Train(nn)
 
-	input := make([]float32, len(letters))
-	rand.Seed(time.Now().Unix())
-	l := rand.Intn(len(letters))
-	input[la[[]byte(letters[l])[0]]] = 1
-	var b [][]float32 = nil
-
-	fmt.Print(string(letters[l][0]))
-	for i := 1; i < 50; i++ {
-		out, bef := nn.Predict(input, b)
-		input = make([]float32, len(out))
-		input[brain.Argmax(out)] = 1
-
-		fmt.Print(letters[brain.Argmax(out)])
-		b = bef
-	}
+	//input := make([]float32, len(letters))
+	//rand.Seed(time.Now().Unix())
+	//l := rand.Intn(len(letters))
+	//input[la[[]byte(letters[l])[0]]] = 1
+	//var b [][]float32 = nil
+	//
+	//fmt.Print(string(letters[l][0]))
+	//for i := 1; i < 20; i++ {
+	//	out, bef := nn.Predict(input, b)
+	//	input = make([]float32, len(out))
+	//	input[brain.Argmax(out)] = 1
+	//
+	//	fmt.Print(letters[brain.Argmax(out)])
+	//	b = bef
+	//}
 	fmt.Println("")
 
 }
