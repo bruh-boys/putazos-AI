@@ -56,7 +56,7 @@ func NewNeuralNetwork(neuronsPerLayer []int, activationFuncs []string, comment s
 
 func (net NN) FeedFoward(input []float32, feedBack [][]float32) (layers [][]float32, mem [][]float32) {
 	layers = make([][]float32, len(net.Bias)+1)
-	mem = make([][]float32, len(net.Bias)-1)
+	mem = make([][]float32, len(net.Rnn))
 	layers[0] = make([]float32, len(input))
 	copy(layers[0], input)
 
@@ -128,7 +128,7 @@ func (net *NN) BackPropagation(layers [][]float32, memory [][]float32, expected 
 			var q float32
 			if net.Rnn[l] && memory != nil {
 				q = (memory[l][n])
-				memory[l][n] = relu(layers[l][n])
+				memory[l][n] = tanh(layers[l][n])
 
 			}
 			for i := range net.Weights[l][n] {
